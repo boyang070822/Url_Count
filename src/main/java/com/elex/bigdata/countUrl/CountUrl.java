@@ -29,6 +29,9 @@ public class CountUrl {
   public static void main(String[] args) throws Exception {
     String output=args[0],day=args[1];
     Configuration conf=new Configuration();
+    conf.set("hbase.rootdir", "hdfs://namenode:19000/datanode1");
+    conf.set("hbase.zookeeper.quorum", "datanode1");
+    conf.setInt("hbase.zookeeper.property.clientPort", 3181);
     Job job=Job.getInstance(conf);
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUrlReduce.class);
