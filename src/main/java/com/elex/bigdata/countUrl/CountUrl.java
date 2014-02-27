@@ -2,6 +2,7 @@ package com.elex.bigdata.countUrl;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
@@ -28,10 +29,7 @@ public class CountUrl {
   private static Logger logger=Logger.getLogger(CountUrl.class);
   public static void main(String[] args) throws Exception {
     String output=args[0],day=args[1];
-    Configuration conf=new Configuration();
-    conf.set("hbase.rootdir", "hdfs://namenode:19000/datanode1");
-    conf.set("hbase.zookeeper.quorum", "datanode1");
-    conf.setInt("hbase.zookeeper.property.clientPort", 3181);
+    Configuration conf= HBaseConfiguration.create();
     Job job=Job.getInstance(conf);
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUrlReduce.class);

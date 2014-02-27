@@ -57,7 +57,7 @@ public class TestPutData {
   }
 
   public void testAndCreateTable(String tableName) throws IOException {
-    Configuration conf = HBaseConfiguration.create();
+    Configuration conf = new Configuration();
     HBaseAdmin admin= new HBaseAdmin(conf);
     if(!admin.tableExists(Bytes.toBytes(tableName))){
       HTableDescriptor descriptor=new HTableDescriptor(tableName);

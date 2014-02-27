@@ -25,7 +25,7 @@ public class CountUrlReduce extends Reducer<Text,Text,Text,Text> {
         num=new Integer(0);
         map.put(url,num);
       }
-      num++;
+      map.put(url,++num);
     }
     for(Map.Entry<Text,Integer> entry: map.entrySet()){
       context.write(uid,new Text(entry.getKey()+"\t"+entry.getValue()));

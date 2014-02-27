@@ -1,8 +1,11 @@
 package com.elex.bigdata.countUrl;
 
+import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,5 +21,21 @@ public class TestCountUrl {
      for(String day : days){
        System.out.println(CountUrl.getNextDay(day));
      }
+  }
+  @Test
+  public void testTextMap(){
+    Text url1=new Text("www.sina.com");
+    Text url2=new Text("www.sina.com");
+    Map<Text,Integer> map=new HashMap<Text,Integer>();
+    map.put(url1,new Integer(0));
+    Integer num=map.get(url1);
+    map.put(url1,++num);
+    Integer num2=map.get(url2);
+    if(num2!=null)
+      num2++;
+    else
+      num2++;
+    System.out.print("hello");
+    System.out.println(url1.equals(url2));
   }
 }
