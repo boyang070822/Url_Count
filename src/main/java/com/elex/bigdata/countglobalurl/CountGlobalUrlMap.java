@@ -14,13 +14,13 @@ import java.io.IOException;
  * Time: 3:16 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CountGlobalUrlMap extends Mapper<LongWritable,Text,Text,Text> {
+public class CountGlobalUrlMap extends Mapper<Text,Text,Text,Text> {
      private static Logger logger=Logger.getLogger(CountGlobalUrlMap.class);
-  public void map(LongWritable key,Text value,Context context) throws IOException, InterruptedException {
+  public void map(Text key,Text value,Context context) throws IOException, InterruptedException {
      //get the url and count
      String[] fields=value.toString().split("\t");
      for(int i=0;i<fields.length;i++)
-       logger.debug("field "+i+": "+fields[i]);
+       logger.info("field "+i+": "+fields[i]);
      context.write(new Text(fields[1]),new Text(fields[2]));
   }
 
