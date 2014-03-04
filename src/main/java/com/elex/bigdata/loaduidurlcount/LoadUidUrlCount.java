@@ -51,11 +51,11 @@ public class LoadUidUrlCount {
     Date scanUnitTime=getScanUnit();
     char type=args[2].charAt(0);
     if(type=='s'){
-      startScanTime=format.parse(args[1].substring(1));
+      startScanTime=format.parse(args[2].substring(1));
       endScanTime=getEndScanTime(startScanTime,scanUnitTime);
     }
     else if(type=='e'){
-      endScanTime=format.parse(args[1].substring(1));
+      endScanTime=format.parse(args[2].substring(1));
       startScanTime=getStartScanTime(endScanTime,scanUnitTime);
     }
     else {
