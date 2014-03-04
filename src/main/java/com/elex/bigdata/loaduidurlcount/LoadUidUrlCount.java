@@ -72,6 +72,7 @@ public class LoadUidUrlCount {
     LoadUidUrlCountReducer.hTable.setAutoFlush(false);
     LoadUidUrlCountReducer.hTable.setScannerCaching(HTableUtil.caching);
     logger.info("init hTable ");
+    job.setJarByClass(LoadUidUrlCount.class);
     TableMapReduceUtil.initTableReducerJob(tableName,LoadUidUrlCountReducer.class,job);
     try {
       job.waitForCompletion(true);

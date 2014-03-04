@@ -1,6 +1,7 @@
 package com.elex.bigdata.loaduidurlcount;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
@@ -15,12 +16,12 @@ import java.util.Map;
  * Time: 5:29 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LoadUidUrlCountMapper extends Mapper<Object,Text,Text,IntWritable> {
+public class LoadUidUrlCountMapper extends Mapper<Object,Text,Text,NullWritable> {
   private static Logger logger=Logger.getLogger(LoadUidUrlCountMapper.class);
   public void map(Object key,Text value,Context context) throws IOException, InterruptedException {
     String[] fields=value.toString().split("\t");
     //for(int i=0;i<fields.length;i++)
     //  logger.debug("field "+i+": "+fields[i]);
-    context.write(new Text(fields[1]+fields[2]),null);
+    context.write(new Text(fields[1]+fields[2]),NullWritable.get());
   }
 }
