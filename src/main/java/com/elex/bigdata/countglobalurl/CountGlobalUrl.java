@@ -2,6 +2,7 @@ package com.elex.bigdata.countglobalurl;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -33,8 +34,10 @@ public class CountGlobalUrl {
     job.setMapperClass(CountGlobalUrlMap.class);
     job.setReducerClass(CountGlobalUrlReduce.class);
     job.setJarByClass(CountGlobalUrl.class);
-    TextInputFormat.addInputPath(job, new Path(input));
+    FileInputFormat.addInputPath(job, new Path(input));
     FileOutputFormat.setOutputPath(job,new Path(output));
+    job.setMapOutputValueClass(Text.class);
+    job.setMapOutputKeyClass(Text.class);
     try {
       job.waitForCompletion(true);
     } catch (InterruptedException e) {

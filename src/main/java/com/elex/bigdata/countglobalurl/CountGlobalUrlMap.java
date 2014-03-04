@@ -15,7 +15,7 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public class CountGlobalUrlMap extends Mapper<Object,Text,Text,Text> {
-     private static Logger logger=Logger.getLogger(CountGlobalUrlMap.class);
+  private static Logger logger=Logger.getLogger(CountGlobalUrlMap.class);
   public void map(Object key,Text value,Context context) throws IOException, InterruptedException {
      //get the url and count
      String[] fields=value.toString().split("\t");
