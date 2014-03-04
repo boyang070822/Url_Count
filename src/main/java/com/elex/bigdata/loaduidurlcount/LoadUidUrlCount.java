@@ -33,6 +33,9 @@ public class LoadUidUrlCount {
   /*
      accumulate the uid:url-count key-value
      the data stored into htable 'uidUrlCount_22find'
+      uidUrlCount_22find
+      rk: uidurl
+      columns: result:count,timestamp
       get the sum and increase by count
   */
   public static Date startScanTime = null,endScanTime = null;
