@@ -22,7 +22,7 @@ public class GetUidUrlMap extends TableMapper<Text,Text> {
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
       byte[] uid= Arrays.copyOfRange(row.get(),16,row.get().length);
       byte[] url= value.getValue(Bytes.toBytes(TableStructure.families[0]),Bytes.toBytes(TableStructure.url));
-      logger.debug("Map uid "+Bytes.toString(uid)+" url "+Bytes.toString(url));
+      logger.info("Map uid "+Bytes.toString(uid)+" url "+Bytes.toString(url));
       context.write(new Text(Bytes.toString(uid)),new Text(Bytes.toString(url)));
   }
 }
