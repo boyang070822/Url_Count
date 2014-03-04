@@ -22,7 +22,7 @@ public class LoadUidUrlCountMapper extends Mapper<Object,Text,Text,NullWritable>
     String[] fields=value.toString().split("\t");
     //for(int i=0;i<fields.length;i++)
     //  logger.debug("field "+i+": "+fields[i]);
-    logger.info(fields[1]+fields[2]);
-    context.write(new Text(fields[1]+fields[2]),NullWritable.get());
+    //logger.info(fields[0]+fields[1]);
+    context.write(new Text(fields[0]+fields[1]),NullWritable.get());
   }
 }
