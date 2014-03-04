@@ -13,6 +13,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
   private static byte[] ts=Bytes.toBytes("timestamp");
   private static int putNum=0;
   public static HTable hTable;
+  private static Logger logger=Logger.getLogger(LoadUidUrlCountReducer.class);
   public void reduce(Text uidUrl,Iterable<NullWritable> counts, Context context) throws IOException {
      Get get=new Get(Bytes.toBytes(uidUrl.toString()));
      get.addColumn(cf,count);
@@ -47,6 +49,9 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
      hTable.put(put);
      putNum++;
      if(putNum== HTableUtil.putBatch)
+     {
+       logger.info("putNum "+putNum);
        hTable.flushCommits();
+     }
   }
 }

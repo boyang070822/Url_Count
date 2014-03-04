@@ -90,6 +90,7 @@ public class LoadUidUrlCount {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
     LoadUidUrlCountReducer.hTable.flushCommits();
+    logger.info("htable flush after job completion");
   }
 
 }
