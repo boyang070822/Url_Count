@@ -31,7 +31,7 @@ public class CountUidUrlReduce extends Reducer<Text,Text,Text,Text> {
     //logger.info("unit uid"+uid.toString());
     for(Map.Entry<String,Integer> entry: map.entrySet()){
       context.write(uid,new Text(entry.getKey()+"\t"+entry.getValue()));
-      //logger.info("uid "+uid+" url: "+entry.getKey().toString());
+      logger.debug("uid "+uid+" url: "+entry.getKey().toString());
     }
   }
 }

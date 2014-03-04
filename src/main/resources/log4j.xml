@@ -11,7 +11,7 @@
   </appender>
 
   <logger name="com.elex.bigdata.countUrl">
-    <level value="info" />
+    <level value="debug" />
     <appender-ref ref="CONSOLE" />
   </logger>
 
