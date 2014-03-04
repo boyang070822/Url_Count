@@ -31,6 +31,7 @@ public class CountGlobalUrl {
     Job job=Job.getInstance(conf);
     job.setMapperClass(CountGlobalUrlMap.class);
     job.setReducerClass(CountGlobalUrlReduce.class);
+    job.setJarByClass(CountGlobalUrl.class);
     FileInputFormat.addInputPath(job,new Path(input));
     FileOutputFormat.setOutputPath(job,new Path(output));
     try {
