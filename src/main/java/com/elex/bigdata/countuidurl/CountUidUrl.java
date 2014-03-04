@@ -85,7 +85,7 @@ public class CountUidUrl {
 
     //set Scan and init Mapper for Hbase Table
 
-    logger.info("start: "+startScanTime+" end: "+endScanTime);
+    logger.info("start: "+format.format(startScanTime)+" end: "+format.format(endScanTime));
 
     Scan scan=new Scan();
     scan.setStartRow(Bytes.toBytes(format.format(startScanTime)));

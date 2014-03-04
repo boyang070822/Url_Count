@@ -29,6 +29,7 @@ public class ScanRangeUtil {
   //knowing the start time and the scanUnit, get the scan end time
   public static Date getEndScanTime(Date startTime,Date scanUnit){
     Date endDate=new Date();
+    System.out.println(startTime.getTime()+" "+scanUnit.getTime());
     endDate.setTime(startTime.getTime()+scanUnit.getTime());
     return endDate;
   }
@@ -40,9 +41,9 @@ public class ScanRangeUtil {
     scanUnitTime.setTime(0l);
     int day=configuration.getInt(SCAN_UNIT_DAY),hour=configuration.getInt(SCAN_UNIT_HOUR),
       minute=configuration.getInt(SCAN_UNIT_MINUTE);
-    scanUnitTime.setDate(day);
-    scanUnitTime.setHours(hour);
-    scanUnitTime.setMinutes(minute);
+    scanUnitTime.setDate(scanUnitTime.getDate()+day);
+    scanUnitTime.setHours(scanUnitTime.getHours()+hour);
+    scanUnitTime.setMinutes(scanUnitTime.getMinutes()+minute);
     return scanUnitTime;
   }
 

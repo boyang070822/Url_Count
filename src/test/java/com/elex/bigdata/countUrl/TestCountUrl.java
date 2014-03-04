@@ -1,13 +1,17 @@
 package com.elex.bigdata.countUrl;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.elex.bigdata.utils.ScanRangeUtil.getNextDay;
+import static com.elex.bigdata.utils.ScanRangeUtil.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +27,23 @@ public class TestCountUrl {
      for(String day : days){
        System.out.println(getNextDay(day));
      }
+  }
+  @Test
+  public void testScanTime() throws ConfigurationException, ParseException {
+    String day="s20140220000000";
+    DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+    Date startScanTime = null,endScanTime = null;
+    Date scanUnitTime=getScanUnit();
+    char type=day.charAt(0);
+    if(type=='s'){
+      startScanTime=format.parse(day.substring(1));
+      endScanTime=getEndScanTime(startScanTime,scanUnitTime);
+    }
+    else if(type=='e'){
+      endScanTime=format.parse(day.substring(1));
+      startScanTime=getStartScanTime(endScanTime,scanUnitTime);
+    }
+    System.out.println("hh");
   }
   @Test
   public void testTextMap(){
