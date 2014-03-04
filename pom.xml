@@ -20,12 +20,6 @@
                     <include>*</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>${project.basedir}/src/main/resources/{xa_env}</directory>
-                <includes>
-                    <include>*</include>
-                </includes>
-            </resource>
         </resources>
         <plugins>
             <plugin>
@@ -88,18 +82,6 @@
         </dependency>
 
         <!-- Hbase & Hadoop -->
-
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-0.94.6.xingcloud-hadoop-2.0</artifactId>
-            <version>0.94.6</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
@@ -169,4 +151,61 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+           <id>production</id>
+           <build>
+               <resources>
+                   <resource>
+                       <directory>${project.basedir}/src/main/resources/production</directory>
+                       <includes>
+                           <include>*</include>
+                       </includes>
+                   </resource>
+               </resources>
+           </build>
+           <dependencies>
+               <dependency>
+                   <groupId>org.apache.hbase</groupId>
+                   <artifactId>hbase</artifactId>
+                   <version>0.94.6-cdh4.5.0</version>
+                   <exclusions>
+                       <exclusion>
+                           <groupId>commons-logging</groupId>
+                           <artifactId>commons-logging</artifactId>
+                       </exclusion>
+                   </exclusions>
+               </dependency>
+           </dependencies>
+        </profile>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>${project.basedir}/src/main/resources/test</directory>
+                        <includes>
+                            <include>*</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hbase</groupId>
+                    <artifactId>hbase-0.94.6.xingcloud-hadoop-2.0</artifactId>
+                    <version>0.94.6</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>commons-logging</groupId>
+                            <artifactId>commons-logging</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

@@ -1,4 +1,4 @@
-package com.elex.bigdata.countUrl;
+package com.elex.bigdata.countuidurl;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -22,6 +22,6 @@ public class GetUidUrlMap extends TableMapper<Text,Text> {
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
       byte[] uid= Arrays.copyOfRange(row.get(),16,row.get().length);
       byte[] url= value.getValue(Bytes.toBytes(TableStructure.families[0]),Bytes.toBytes(TableStructure.url));
-      context.write(new Text(uid),new Text(url));
+      context.write(new Text(Bytes.toString(uid)),new Text(Bytes.toString(url)));
   }
 }

@@ -7,6 +7,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.elex.bigdata.utils.ScanRangeUtil.getNextDay;
+
 /**
  * Created with IntelliJ IDEA.
  * User: yb
@@ -19,7 +21,7 @@ public class TestCountUrl {
   public void testGetNextDay() throws ParseException {
      String[] days={"20140131","20140228","20140430"};
      for(String day : days){
-       System.out.println(CountUrl.getNextDay(day));
+       System.out.println(getNextDay(day));
      }
   }
   @Test

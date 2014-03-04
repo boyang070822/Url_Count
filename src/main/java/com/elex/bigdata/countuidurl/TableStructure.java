@@ -1,4 +1,4 @@
-package com.elex.bigdata.countUrl;
+package com.elex.bigdata.countuidurl;
 
 /**
  * Created with IntelliJ IDEA.
