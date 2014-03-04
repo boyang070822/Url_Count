@@ -8,8 +8,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -62,16 +65,21 @@ public class LoadUidUrlCount {
       logger.error("args[1] should start with 's' to indicate startTime or 'e' to indicate endTime");
     }
     timeRange=format.format(startScanTime)+"-"+format.format(endScanTime);
-    Configuration conf= HBaseConfiguration.create();
-    Job job=Job.getInstance(conf);
 
-    job.setMapperClass(LoadUidUrlCountMapper.class);
-    job.setReducerClass(LoadUidUrlCountReducer.class);
-    FileInputFormat.addInputPath(job, new Path(input));
+    Configuration conf= HBaseConfiguration.create();
+
     LoadUidUrlCountReducer.hTable=new HTable(conf,tableName);
     LoadUidUrlCountReducer.hTable.setAutoFlush(false);
     LoadUidUrlCountReducer.hTable.setScannerCaching(HTableUtil.caching);
     logger.info("init hTable ");
+
+    Job job=Job.getInstance(conf);
+    job.setMapperClass(LoadUidUrlCountMapper.class);
+    job.setReducerClass(LoadUidUrlCountReducer.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(NullWritable.class);
+    FileInputFormat.addInputPath(job, new Path(input));
+    FileOutputFormat.setOutputPath(job,new Path(tableName));
     job.setJarByClass(LoadUidUrlCount.class);
     TableMapReduceUtil.initTableReducerJob(tableName,LoadUidUrlCountReducer.class,job);
     try {
