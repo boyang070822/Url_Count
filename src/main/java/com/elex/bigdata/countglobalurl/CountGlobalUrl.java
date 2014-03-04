@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class CountGlobalUrl {
     job.setMapperClass(CountGlobalUrlMap.class);
     job.setReducerClass(CountGlobalUrlReduce.class);
     job.setJarByClass(CountGlobalUrl.class);
-    FileInputFormat.addInputPath(job,new Path(input));
+    TextInputFormat.addInputPath(job, new Path(input));
     FileOutputFormat.setOutputPath(job,new Path(output));
     try {
       job.waitForCompletion(true);
