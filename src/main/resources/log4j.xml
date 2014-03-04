@@ -10,7 +10,7 @@
     </layout>
   </appender>
 
-  <logger name="com.elex.bigdata.countUrl">
+  <logger name="com.elex.bigdata">
     <level value="debug" />
     <appender-ref ref="CONSOLE" />
   </logger>
