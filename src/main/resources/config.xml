@@ -2,12 +2,12 @@
     <ScanUnit>
         <day>1</day>
         <hour>0</hour>
-        <Minute>0</Minute>
+        <minute>0</minute>
         <activate>true</activate>
     </ScanUnit>
     <CountHistoryUnit>
         <hour>1</hour>
-        <Minute>0</Minute>
+        <minute>0</minute>
         <activate>true</activate>
     </CountHistoryUnit>
 </config>
