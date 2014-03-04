@@ -42,6 +42,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,IntWritable,Immuta
        urlCount++;
      Put put =new Put(Bytes.toBytes(uidUrl.toString()));
      put.add(cf,count,Bytes.toBytes(urlCount));
+     put.add(cf,ts,Bytes.toBytes(LoadUidUrlCount.timeRange));
      hTable.put(put);
      putNum++;
      if(putNum== HTableUtil.putBatch)

@@ -15,12 +15,12 @@ import java.util.Map;
  * Time: 5:29 PM
  * To change this template use File | Settings | File Templates.
  */
-public class LoadUidUrlCountMapper extends Mapper<Text,Text,Text,IntWritable> {
+public class LoadUidUrlCountMapper extends Mapper<Object,Text,Text,IntWritable> {
   private static Logger logger=Logger.getLogger(LoadUidUrlCountMapper.class);
-  public void map(Text key,Text value,Context context) throws IOException, InterruptedException {
+  public void map(Object key,Text value,Context context) throws IOException, InterruptedException {
     String[] fields=value.toString().split("\t");
-    for(int i=0;i<fields.length;i++)
-      logger.debug("field "+i+": "+fields[i]);
+    //for(int i=0;i<fields.length;i++)
+    //  logger.debug("field "+i+": "+fields[i]);
     context.write(new Text(fields[1]+fields[2]),null);
   }
 }
