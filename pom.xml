@@ -7,7 +7,7 @@
     <groupId>com.elex.bigdata</groupId>
     <artifactId>Url_Count</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
 
     <build>
@@ -66,6 +66,15 @@
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
     </repositories>
+
+    <modules>
+        <module>CountGlobalUrl</module>
+        <module>CountUidUrl</module>
+        <module>QueryUidUrl</module>
+        <module>LoadUidUrl</module>
+        <module>AccumulateUidUrlCount</module>
+
+    </modules>
 
 
     <dependencies>
@@ -130,30 +139,25 @@
 
         <!-- XA commons -->
         <dependency>
-            <groupId>com.xingcloud.xa</groupId>
-            <artifactId>hashutil</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.xingcloud.xa</groupId>
-            <artifactId>basis</artifactId>
+            <groupId>com.elex.bigdata</groupId>
+            <artifactId>confutil</artifactId>
             <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.xingcloud.xa</groupId>
-            <artifactId>confutil</artifactId>
-            <version>1.2</version>
-        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     <profiles>
         <profile>
            <id>production</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
            <build>
                <resources>
                    <resource>
@@ -180,9 +184,7 @@
         </profile>
         <profile>
             <id>test</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+
             <build>
                 <resources>
                     <resource>

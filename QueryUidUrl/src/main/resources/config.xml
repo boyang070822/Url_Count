@@ -1,0 +1,17 @@
+<config>
+    <ScanUnit>
+        <day>1</day>
+        <hour>0</hour>
+        <minute>0</minute>
+        <activate>true</activate>
+    </ScanUnit>
+    <CountHistoryUnit>
+        <hour>1</hour>
+        <minute>0</minute>
+        <activate>true</activate>
+    </CountHistoryUnit>
+    <Query>
+        <table>uidUrlCount_22find</table>
+        <uidTable>nav_22find</uidTable>
+    </Query>
+</config>
