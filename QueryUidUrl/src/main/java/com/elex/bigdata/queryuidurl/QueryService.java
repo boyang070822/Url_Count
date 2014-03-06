@@ -22,7 +22,7 @@ public class QueryService {
     URIBuilder builder = new URIBuilder();
     URI uri;
     builder.setScheme("http");
-    Configuration conf= Config.createConfig("test/query_service.properties", Config.ConfigFormat.properties);
+    Configuration conf= Config.createConfig("/query_service.properties", Config.ConfigFormat.properties);
     String host=conf.getString("host");
     builder.setHost(host);
     int port=conf.getInt("port");
