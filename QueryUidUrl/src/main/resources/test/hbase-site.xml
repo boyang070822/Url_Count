@@ -2,7 +2,7 @@
 <configuration>
     <property>
         <name>hbase.rootdir</name>
-        <value>hdfs://namenode:19000/datanode1</value>
+        <value>hdfs://namenode:19000/datanode0</value>
     </property>
     <property>
         <name>hbase.cluster.distributed</name>
@@ -11,7 +11,7 @@
 
     <property>
         <name>hbase.zookeeper.quorum</name>
-        <value>datanode1</value>
+        <value>datanode0</value>
     </property>
 
     <property>
@@ -41,7 +41,7 @@
     </property>
     <property>
         <name>hbase.client.retries.number</name>
-        <value>1</value>
+        <value>5</value>
     </property>
     <property>
         <name>hbase.ipc.client.tcpnodelay</name>

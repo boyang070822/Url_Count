@@ -1,4 +1,4 @@
-package com.elex.bigdata.queryuidurl;
+package com.elex.bigdata.user_category.service;
 
 import java.util.Map;
 

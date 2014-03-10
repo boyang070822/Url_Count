@@ -4,6 +4,7 @@ package com.elex.bigdata.queryuidurl;
 import com.elex.bigdata.queryuidurl.utils.HTableUtil;
 import com.elex.bigdata.queryuidurl.utils.ScanRangeUtil;
 import com.elex.bigdata.queryuidurl.utils.TableStructure;
+import com.elex.bigdata.user_category.service.Submit;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.hadoop.conf.Configuration;
@@ -81,10 +82,12 @@ public class QueryUidUrl {
         HTable uidTable=new HTable(conf,uidTableName);
         Set<String> uids=getUids(uidTable,startTime,endTime);
         Map<String,Map<String,Integer>> users=new HashMap<String, Map<String, Integer>>();
+        logger.info("get uid url Counts");
         for(String uid: uids){
             Map<String,Integer> urlCounts=getUrlCounts(urlCountTable,uid);
             users.put(uid,urlCounts);
         }
+        logger.info("submit Batch");
         submit.submitBatch(users);
       }
    }
@@ -129,7 +132,7 @@ public class QueryUidUrl {
      ResultScanner scanner=table.getScanner(scan);
      for(Result result:scanner){
        for(KeyValue kv: result.raw()){
-         String url=Bytes.toString(Arrays.copyOf(kv.getRow(),uidLen));
+         String url=Bytes.toString(Arrays.copyOfRange(kv.getRow(),uidLen,kv.getRowLength()));
          Integer count=Bytes.toInt(kv.getValue());
          urlCounts.put(url,count);
        }

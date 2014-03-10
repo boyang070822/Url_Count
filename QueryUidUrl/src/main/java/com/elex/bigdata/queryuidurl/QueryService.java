@@ -2,6 +2,7 @@ package com.elex.bigdata.queryuidurl;
 
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.elex.bigdata.conf.Config;
+import com.elex.bigdata.user_category.service.Submit;
 import org.apache.commons.configuration.Configuration;
 import org.apache.http.client.utils.URIBuilder;
 
