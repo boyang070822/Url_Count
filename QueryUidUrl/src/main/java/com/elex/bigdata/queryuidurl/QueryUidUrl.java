@@ -41,104 +41,118 @@ public class QueryUidUrl {
       get uid_url:count key_value list to produce Map<url,count> and put it to Map<uid,Map<url,count>>
 
   */
-   private static Logger logger=Logger.getLogger(QueryUidUrl.class);
+  private static Logger logger = Logger.getLogger(QueryUidUrl.class);
 
-   private Submit submit=null;
-   public static void main(String[] args) throws ConfigurationException, ParseException, IOException {
-     Date scanStartTime=null,scanEndTime=null;
-     SimpleDateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+  private Submit submit = null;
 
-     if(args.length<1){
-       scanEndTime=new Date();
-       scanStartTime= ScanRangeUtil.getStartScanTime(scanEndTime, ScanRangeUtil.getCountHistoryUnit());
-     }else {
-       if(args[0].charAt(0)=='s'){
-         scanStartTime=format.parse(args[0].substring(1));
-         scanEndTime= ScanRangeUtil.getEndScanTime(scanStartTime, ScanRangeUtil.getCountHistoryUnit());
-       }else if(args[0].charAt(0)=='e'){
-         scanEndTime=format.parse(args[0].substring(1));
-         scanStartTime= ScanRangeUtil.getStartScanTime(scanEndTime, ScanRangeUtil.getCountHistoryUnit());
-       }else{
-         logger.info("args[0] should start with s or e . or you can not have any args.");
-         return;
-       }
-     }
-     QueryUidUrl queryUidUrl=new QueryUidUrl();
-     queryUidUrl.query(format.format(scanStartTime), format.format(scanEndTime));
-   }
+  public static void main(String[] args) throws ConfigurationException, ParseException, IOException {
+    Date scanStartTime = null, scanEndTime = null;
+    SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
-   public QueryUidUrl(){
-      submit=QueryService.getQuerySubmit();
-   }
-
-   public void query(String startTime,String endTime ) throws ConfigurationException, IOException {
-      List<String> urlCountTableNames=getUrlCountTableNames();
-      List<String> uidTableNames=getUidTableNames();
-      Configuration conf=HBaseConfiguration.create();
-      for(int i=0;i<urlCountTableNames.size();i++){
-        String urlCountTableName=urlCountTableNames.get(i);
-        HTable urlCountTable=new HTable(conf,urlCountTableName);
-        String uidTableName=uidTableNames.get(i);
-        HTable uidTable=new HTable(conf,uidTableName);
-        Set<String> uids=getUids(uidTable,startTime,endTime);
-        Map<String,Map<String,Integer>> users=new HashMap<String, Map<String, Integer>>();
-        logger.info("get uid url Counts");
-        for(String uid: uids){
-            Map<String,Integer> urlCounts=getUrlCounts(urlCountTable,uid);
-            users.put(uid,urlCounts);
-        }
-        logger.info("submit Batch");
-        submit.submitBatch(users);
+    if (args.length < 1) {
+      scanEndTime = new Date();
+      scanStartTime = ScanRangeUtil.getStartScanTime(scanEndTime, ScanRangeUtil.getCountHistoryUnit());
+    } else if (args.length == 2) {
+      logger.info("args length is 2. the first should be starttime,the second should be endTime");
+      if(args[0].charAt(0)!='s'){
+        logger.info("first arg is "+args[0]+" not start with s");
+        return;
       }
-   }
+      if(args[1].charAt(0)!='e'){
+        logger.info("first arg is "+args[1]+" not start with e");
+        return;
+      }
+      scanStartTime=format.parse(args[0].substring(1));
+      scanEndTime=format.parse(args[1].substring(1));
+    } else {
+      if (args[0].charAt(0) == 's') {
+        scanStartTime = format.parse(args[0].substring(1));
+        scanEndTime = ScanRangeUtil.getEndScanTime(scanStartTime, ScanRangeUtil.getCountHistoryUnit());
+      } else if (args[0].charAt(0) == 'e') {
+        scanEndTime = format.parse(args[0].substring(1));
+        scanStartTime = ScanRangeUtil.getStartScanTime(scanEndTime, ScanRangeUtil.getCountHistoryUnit());
+      } else {
+        logger.info("args[0] should start with s or e . or you can not have any args.");
+        return;
+      }
+    }
+    QueryUidUrl queryUidUrl = new QueryUidUrl();
+    queryUidUrl.query(format.format(scanStartTime), format.format(scanEndTime));
+  }
 
-   private List<String> getUrlCountTableNames() throws ConfigurationException {
-     XMLConfiguration configuration=new XMLConfiguration("config.xml");
-     String tableStr=configuration.getString(HTableUtil.Query_Tables);
-     String[] tables=tableStr.split(",");
-     return Arrays.asList(tables);
-   }
-   private List<String> getUidTableNames() throws ConfigurationException {
-     XMLConfiguration configuration=new XMLConfiguration("config.xml");
-     String tableStr=configuration.getString(HTableUtil.Query_Uid_Tables);
-     String[] tables=tableStr.split(",");
-     return Arrays.asList(tables);
-   }
+  public QueryUidUrl() {
+    submit = QueryService.getQuerySubmit();
+  }
 
-   private Set<String> getUids(HTable table,String startTime,String endTime) throws IOException {
-     Set<String> uids=new HashSet<String>();
-     Scan scan=new Scan();
-     scan.setStartRow(Bytes.toBytes(startTime));
-     scan.setStopRow(Bytes.toBytes(endTime));
-     scan.addColumn(Bytes.toBytes(TableStructure.families[0]),Bytes.toBytes(TableStructure.url));
-     ResultScanner scanner=table.getScanner(scan);
-     for(Result result: scanner){
-       String uid=Bytes.toString(result.getRow()).substring(TableStructure.uidIndex);
-       uids.add(uid);
-     }
-     return uids;
-   }
+  public void query(String startTime, String endTime) throws ConfigurationException, IOException {
+    List<String> urlCountTableNames = getUrlCountTableNames();
+    List<String> uidTableNames = getUidTableNames();
+    Configuration conf = HBaseConfiguration.create();
+    for (int i = 0; i < urlCountTableNames.size(); i++) {
+      String urlCountTableName = urlCountTableNames.get(i);
+      HTable urlCountTable = new HTable(conf, urlCountTableName);
+      String uidTableName = uidTableNames.get(i);
+      HTable uidTable = new HTable(conf, uidTableName);
+      Set<String> uids = getUids(uidTable, startTime, endTime);
+      Map<String, Map<String, Integer>> users = new HashMap<String, Map<String, Integer>>();
+      logger.info("get uid url Counts");
+      for (String uid : uids) {
+        Map<String, Integer> urlCounts = getUrlCounts(urlCountTable, uid);
+        users.put(uid, urlCounts);
+      }
+      logger.info("submit Batch");
+      submit.submitBatch(users);
+    }
+  }
 
-   private Map<String,Integer> getUrlCounts(HTable table,String uid) throws IOException {
-     byte[] startRk=Bytes.toBytes(uid);
-     int uidLen=startRk.length;
-     byte[] endRk= HTableUtil.getNextRk(startRk);
-     Map<String,Integer> urlCounts=new HashMap<String, Integer>();
-     Scan scan=new Scan();
-     scan.addColumn(Bytes.toBytes(TableStructure.url_Count_familiy),
-                    Bytes.toBytes(TableStructure.url_count_column_count));
-     scan.setStartRow(startRk);
-     scan.setStopRow(endRk);
-     ResultScanner scanner=table.getScanner(scan);
-     for(Result result:scanner){
-       for(KeyValue kv: result.raw()){
-         String url=Bytes.toString(Arrays.copyOfRange(kv.getRow(),uidLen,kv.getRowLength()));
-         Integer count=Bytes.toInt(kv.getValue());
-         urlCounts.put(url,count);
-       }
-     }
-     return urlCounts;
-   }
+  private List<String> getUrlCountTableNames() throws ConfigurationException {
+    XMLConfiguration configuration = new XMLConfiguration("config.xml");
+    String tableStr = configuration.getString(HTableUtil.Query_Tables);
+    String[] tables = tableStr.split(",");
+    return Arrays.asList(tables);
+  }
+
+  private List<String> getUidTableNames() throws ConfigurationException {
+    XMLConfiguration configuration = new XMLConfiguration("config.xml");
+    String tableStr = configuration.getString(HTableUtil.Query_Uid_Tables);
+    String[] tables = tableStr.split(",");
+    return Arrays.asList(tables);
+  }
+
+  private Set<String> getUids(HTable table, String startTime, String endTime) throws IOException {
+    Set<String> uids = new HashSet<String>();
+    Scan scan = new Scan();
+    scan.setStartRow(Bytes.toBytes(startTime));
+    scan.setStopRow(Bytes.toBytes(endTime));
+    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
+    ResultScanner scanner = table.getScanner(scan);
+    for (Result result : scanner) {
+      String uid = Bytes.toString(result.getRow()).substring(TableStructure.uidIndex);
+      uids.add(uid);
+    }
+    return uids;
+  }
+
+  private Map<String, Integer> getUrlCounts(HTable table, String uid) throws IOException {
+    byte[] startRk = Bytes.toBytes(uid);
+    int uidLen = startRk.length;
+    byte[] endRk = HTableUtil.getNextRk(startRk);
+    Map<String, Integer> urlCounts = new HashMap<String, Integer>();
+    Scan scan = new Scan();
+    scan.addColumn(Bytes.toBytes(TableStructure.url_Count_familiy),
+      Bytes.toBytes(TableStructure.url_count_column_count));
+    scan.setStartRow(startRk);
+    scan.setStopRow(endRk);
+    ResultScanner scanner = table.getScanner(scan);
+    for (Result result : scanner) {
+      for (KeyValue kv : result.raw()) {
+        String url = Bytes.toString(Arrays.copyOfRange(kv.getRow(), uidLen, kv.getRowLength()));
+        Integer count = Bytes.toInt(kv.getValue());
+        urlCounts.put(url, count);
+      }
+    }
+    return urlCounts;
+  }
 
 
 }
