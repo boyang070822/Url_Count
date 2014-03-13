@@ -1,6 +1,7 @@
 package com.elex.bigdata.loaduidurl;
 
 import com.elex.bigdata.loaduidurl.utils.HTableUtil;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
@@ -27,17 +28,27 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
   private static byte[] count=Bytes.toBytes("count");
   private static byte[] ts=Bytes.toBytes("timestamp");
   private static int putNum=0;
-  public static HTable hTable;
+  private HTable hTable;
+  private String timeRange;
   private static Logger logger=Logger.getLogger(LoadUidUrlCountReducer.class);
+  @Override
+  protected void setup(Context context)
+    throws IOException, InterruptedException {
+    try {
+      //从全局配置获取配置参数
+      Configuration conf = context.getConfiguration();
+      String tableName = conf.get("table"); //这样就拿到了
+      hTable=new HTable(conf,tableName);
+      timeRange=conf.get("timeRange");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+  }
   public void reduce(Text uidUrl,Iterable<NullWritable> counts, Context context) throws IOException {
      Get get=new Get(Bytes.toBytes(uidUrl.toString()));
      get.addColumn(cf,count);
-     Result result=null;
-     if(hTable==null)
-     {
-       logger.info("hTable is null");
-     }else
-      result=hTable.get(get);
+     Result result=hTable.get(get);
      int urlCount=0;
      if(result!=null)
      for(KeyValue kv: result.raw()){
@@ -48,7 +59,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
        urlCount++;
      Put put =new Put(Bytes.toBytes(uidUrl.toString()));
      put.add(cf,count,Bytes.toBytes(urlCount));
-     put.add(cf,ts,Bytes.toBytes(LoadUidUrlCount.timeRange));
+     put.add(cf,ts,Bytes.toBytes(timeRange));
      hTable.put(put);
 
      putNum++;
@@ -57,5 +68,10 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
        logger.info("putNum "+putNum);
        hTable.flushCommits();
      }
+  }
+
+  protected void cleanup(Context context) throws IOException {
+    hTable.flushCommits();
+    hTable.close();
   }
 }

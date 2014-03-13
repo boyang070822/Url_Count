@@ -65,12 +65,9 @@ public class LoadUidUrlCount {
     timeRange=format.format(startScanTime)+"-"+format.format(endScanTime);
 
     Configuration conf= HBaseConfiguration.create();
-
-    LoadUidUrlCountReducer.hTable=new HTable(conf,tableName);
-    LoadUidUrlCountReducer.hTable.setAutoFlush(false);
-    LoadUidUrlCountReducer.hTable.setScannerCaching(HTableUtil.caching);
-    logger.info("init hTable ");
-
+    conf.set("table",tableName);
+    conf.set("timeRange",timeRange);
+    logger.info("config hTable "+tableName);
     Job job=Job.getInstance(conf);
     job.setMapperClass(LoadUidUrlCountMapper.class);
     job.setReducerClass(LoadUidUrlCountReducer.class);
@@ -87,7 +84,6 @@ public class LoadUidUrlCount {
     } catch (ClassNotFoundException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
-    LoadUidUrlCountReducer.hTable.flushCommits();
     logger.info("htable flush after job completion");
   }
 
