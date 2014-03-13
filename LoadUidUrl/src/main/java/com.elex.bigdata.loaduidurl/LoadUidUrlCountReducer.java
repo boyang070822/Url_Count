@@ -39,6 +39,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
       Configuration conf = context.getConfiguration();
       String tableName = conf.get("table"); //这样就拿到了
       hTable=new HTable(conf,tableName);
+      hTable.setAutoFlush(false);
       timeRange=conf.get("timeRange");
     } catch (Exception e) {
       e.printStackTrace();
