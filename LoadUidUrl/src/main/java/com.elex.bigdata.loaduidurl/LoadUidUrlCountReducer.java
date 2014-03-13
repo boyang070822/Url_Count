@@ -32,6 +32,11 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
   public void reduce(Text uidUrl,Iterable<NullWritable> counts, Context context) throws IOException {
      Get get=new Get(Bytes.toBytes(uidUrl.toString()));
      get.addColumn(cf,count);
+     if(hTable==null)
+     {
+       logger.info("hTable is null");
+       return;
+     }
      Result result=hTable.get(get);
      int urlCount=0;
      if(result!=null)
