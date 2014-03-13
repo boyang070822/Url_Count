@@ -34,6 +34,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
      get.addColumn(cf,count);
      Result result=hTable.get(get);
      int urlCount=0;
+     if(result!=null)
      for(KeyValue kv: result.raw()){
        urlCount=Bytes.toInt(kv.getValue());
        break;
