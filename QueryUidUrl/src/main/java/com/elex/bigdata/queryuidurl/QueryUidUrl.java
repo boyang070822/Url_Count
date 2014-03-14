@@ -77,6 +77,7 @@ public class QueryUidUrl {
       }
     }
     QueryUidUrl queryUidUrl = new QueryUidUrl();
+    logger.info("start: "+format.format(scanStartTime)+" end: "+format.format(scanEndTime));
     queryUidUrl.query(format.format(scanStartTime), format.format(scanEndTime));
   }
 
