@@ -96,6 +96,7 @@ public class QueryUidUrl {
       Set<String> uids = getUids(uidTable, startTime, endTime);
       Map<String, Map<String, Integer>> users = new HashMap<String, Map<String, Integer>>();
       logger.info("get uid url Counts");
+      logger.info("user count is "+users.size());
       for (String uid : uids) {
         Map<String, Integer> urlCounts = getUrlCounts(urlCountTable, uid);
         users.put(uid, urlCounts);
