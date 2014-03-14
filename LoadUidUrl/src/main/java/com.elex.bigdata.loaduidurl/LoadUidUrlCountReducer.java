@@ -15,6 +15,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,6 +33,7 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
   private HTable hTable;
   private String timeRange;
   private static Logger logger=Logger.getLogger(LoadUidUrlCountReducer.class);
+  private List<Put> puts=new ArrayList<Put>();
   @Override
   protected void setup(Context context)
     throws IOException, InterruptedException {
@@ -61,17 +64,19 @@ public class LoadUidUrlCountReducer extends TableReducer<Text,NullWritable,Immut
      Put put =new Put(Bytes.toBytes(uidUrl.toString()));
      put.add(cf,count,Bytes.toBytes(urlCount));
      put.add(cf,ts,Bytes.toBytes(timeRange));
-     hTable.put(put);
-
-     putNum++;
-     if(putNum== HTableUtil.putBatch)
+     puts.add(put);
+     //hTable.put(put);
+     if(puts.size()== HTableUtil.putBatch)
      {
+       hTable.put(puts);
        logger.info("putNum "+putNum);
        hTable.flushCommits();
+       puts=new ArrayList<Put>();
      }
   }
 
   protected void cleanup(Context context) throws IOException {
+    hTable.put(puts);
     hTable.flushCommits();
     hTable.close();
   }
