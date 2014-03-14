@@ -14,6 +14,8 @@ import java.util.Arrays;
 public class HTableUtil {
   public static int putBatch=1000;
   public static int caching=500;
+  public static int getBatch=10;
+  public static int cacheNum=1000;
   public static final String Query_Tables="Query.table";
   public static final String Query_Uid_Tables="Query.uidTable";
   public static byte[] getNextRk(byte[] rk){

@@ -126,6 +126,8 @@ public class QueryUidUrl {
     scan.setStartRow(Bytes.toBytes(startTime));
     scan.setStopRow(Bytes.toBytes(endTime));
     scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
+    scan.setBatch(HTableUtil.getBatch);
+    scan.setCaching(HTableUtil.cacheNum);
     ResultScanner scanner = table.getScanner(scan);
     for (Result result : scanner) {
       String uid = Bytes.toString(result.getRow()).substring(TableStructure.uidIndex);
@@ -142,6 +144,8 @@ public class QueryUidUrl {
     Scan scan = new Scan();
     scan.addColumn(Bytes.toBytes(TableStructure.url_Count_familiy),
       Bytes.toBytes(TableStructure.url_count_column_count));
+    scan.setCaching(HTableUtil.cacheNum);
+    scan.setBatch(HTableUtil.getBatch);
     scan.setStartRow(startRk);
     scan.setStopRow(endRk);
     ResultScanner scanner = table.getScanner(scan);
