@@ -73,6 +73,7 @@
         <module>QueryUidUrl</module>
         <module>LoadUidUrl</module>
         <module>AccumulateUidUrlCount</module>
+        <module>LabeledDocuments</module>
 
     </modules>
 

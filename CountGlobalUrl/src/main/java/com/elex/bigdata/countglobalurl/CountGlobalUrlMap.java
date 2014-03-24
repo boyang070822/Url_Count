@@ -19,6 +19,10 @@ public class CountGlobalUrlMap extends Mapper<Object,Text,Text,Text> {
   public void map(Object key,Text value,Context context) throws IOException, InterruptedException {
      //get the url and count
      String[] fields=value.toString().split("\t");
+     if(fields.length!=3){
+       logger.info("error value : "+value);
+       return;
+     }
      //for(int i=0;i<fields.length;i++)
      //  logger.info("field "+i+": "+fields[i]);
      context.write(new Text(fields[1]),new Text(fields[2]));
