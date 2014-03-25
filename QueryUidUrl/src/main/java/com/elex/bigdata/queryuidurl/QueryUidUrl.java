@@ -54,16 +54,16 @@ public class QueryUidUrl {
       scanStartTime = ScanRangeUtil.getStartScanTime(scanEndTime, ScanRangeUtil.getCountHistoryUnit());
     } else if (args.length == 2) {
       logger.info("args length is 2. the first should be starttime,the second should be endTime");
-      if(args[0].charAt(0)!='s'){
-        logger.info("first arg is "+args[0]+" not start with s");
+      if (args[0].charAt(0) != 's') {
+        logger.info("first arg is " + args[0] + " not start with s");
         return;
       }
-      if(args[1].charAt(0)!='e'){
-        logger.info("first arg is "+args[1]+" not start with e");
+      if (args[1].charAt(0) != 'e') {
+        logger.info("first arg is " + args[1] + " not start with e");
         return;
       }
-      scanStartTime=format.parse(args[0].substring(1));
-      scanEndTime=format.parse(args[1].substring(1));
+      scanStartTime = format.parse(args[0].substring(1));
+      scanEndTime = format.parse(args[1].substring(1));
     } else {
       if (args[0].charAt(0) == 's') {
         scanStartTime = format.parse(args[0].substring(1));
@@ -77,7 +77,7 @@ public class QueryUidUrl {
       }
     }
     QueryUidUrl queryUidUrl = new QueryUidUrl();
-    logger.info("start: "+format.format(scanStartTime)+" end: "+format.format(scanEndTime));
+    logger.info("start: " + format.format(scanStartTime) + " end: " + format.format(scanEndTime));
     queryUidUrl.query(format.format(scanStartTime), format.format(scanEndTime));
   }
 
@@ -97,12 +97,16 @@ public class QueryUidUrl {
       Set<String> uids = getUids(uidTable, startTime, endTime);
       Map<String, Map<String, Integer>> users = new HashMap<String, Map<String, Integer>>();
       logger.info("get uid url Counts");
-      logger.info("user count is "+uids.size());
+      logger.info("user count is " + uids.size());
+      int submitNum=0;
       for (String uid : uids) {
         Map<String, Integer> urlCounts = getUrlCounts(urlCountTable, uid);
-        users.put(uid, urlCounts);
+        if (urlCounts.size() > 0){
+          users.put(uid, urlCounts);
+          submitNum++;
+        }
       }
-      logger.info("submit Batch");
+      logger.info("submit Batch "+submitNum);
       submit.submitBatch(users);
     }
   }
