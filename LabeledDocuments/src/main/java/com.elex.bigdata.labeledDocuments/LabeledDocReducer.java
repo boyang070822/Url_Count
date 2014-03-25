@@ -49,8 +49,9 @@ public class LabeledDocReducer extends Reducer<Text,Text,Text,Text> {
     for(Text urlCfText:values){
       String urlCf=urlCfText.toString();
       String url=urlCf.split(",")[0];
-      if(category_Labels.containsKey(url)){
-        labels.add(category_Labels.get(url));
+      String category=url_categories.get(url);
+      if(category_Labels.containsKey(category)){
+        labels.add(category_Labels.get(category));
       }
       builder.append(urlCf+" ");
     }
@@ -61,7 +62,8 @@ public class LabeledDocReducer extends Reducer<Text,Text,Text,Text> {
     for(String label:labels){
       labelsBuilder.append(label+",");
     }
-    labelsBuilder.deleteCharAt(labelsBuilder.length()-1);
+    if(labelsBuilder.length()!=1)
+      labelsBuilder.deleteCharAt(labelsBuilder.length()-1);
     labelsBuilder.append("]");
     context.write(new Text(uid), new Text(labelsBuilder.toString() +" "+ builder.toString()));
   }
