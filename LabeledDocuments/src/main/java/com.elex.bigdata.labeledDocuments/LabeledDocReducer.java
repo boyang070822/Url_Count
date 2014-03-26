@@ -46,14 +46,20 @@ public class LabeledDocReducer extends Reducer<Text,Text,Text,Text> {
     String uid=key.toString();
     Set<String> labels=new HashSet<String>();
     StringBuilder builder=new StringBuilder();
+    Map<String,Integer> urlCfs=new HashMap<String, Integer>();
     for(Text urlCfText:values){
       String urlCf=urlCfText.toString();
       String url=urlCf.split(",")[0];
+      if(!urlCfs.containsKey(url))
+        urlCfs.put(url,new Integer(0));
+      urlCfs.put(url,urlCfs.get(url)+Integer.parseInt(urlCf.split(",")[1]));
       String category=url_categories.get(url);
       if(category_Labels.containsKey(category)){
         labels.add(category_Labels.get(category));
       }
-      builder.append(urlCf+" ");
+    }
+    for(Map.Entry<String,Integer> urlCf: urlCfs.entrySet()){
+      builder.append(urlCf.getKey()+","+urlCf.getValue()+" ");
     }
     builder.deleteCharAt(builder.length()-1);
 
