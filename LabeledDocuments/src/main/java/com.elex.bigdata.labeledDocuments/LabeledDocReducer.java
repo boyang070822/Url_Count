@@ -52,7 +52,12 @@ public class LabeledDocReducer extends Reducer<Text,Text,Text,Text> {
       String url=urlCf.split(",")[0];
       if(!urlCfs.containsKey(url))
         urlCfs.put(url,new Integer(0));
+      try{
       urlCfs.put(url,urlCfs.get(url)+Integer.parseInt(urlCf.split(",")[1]));
+      }catch (NumberFormatException e){
+        e.printStackTrace();
+        continue;
+      }
       String category=url_categories.get(url);
       if(category_Labels.containsKey(category)){
         labels.add(category_Labels.get(category));
