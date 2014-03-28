@@ -7,7 +7,8 @@ Jar=$baseDir/target/LabeledDocuments-jar-with-dependencies.jar
 Main=com.elex.bigdata.labeledDocuments.LabeledDocument
 echo "hadoop fs -rm -r $outputDir"
 hadoop fs -rm -r $outputDir
-echo "hadoop jar $Jar $Main $inputDir $outputDir"
-hadoop jar $Jar $Main $inputDir $outputDir
+logFile=/data/log/user_category/processLog/getLabeledDocs.log
+echo "hadoop jar $Jar $Main $inputDir $outputDir >> $logFile 2>&1"
+hadoop jar $Jar $Main $inputDir $outputDir >> $logFile 2>&1
 echo "hadoop fs -getmerge $outputDir $localOutputFile"
 hadoop fs -getmerge $outputDir $localOutputFile

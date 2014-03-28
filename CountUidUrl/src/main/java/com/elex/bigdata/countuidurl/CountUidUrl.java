@@ -2,6 +2,7 @@ package com.elex.bigdata.countuidurl;
 
 import com.elex.bigdata.countuidurl.utils.ScanRangeUtil;
 import com.elex.bigdata.countuidurl.utils.TableStructure;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -45,18 +46,20 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    if(args.length<1||args.length>2){
-      logger.error("args length should be >=1 and <2 . the first outputPath ,the second startTime");
+    if(args.length<1||args.length>3){
+      logger.error("args length should be >=1 and <3 . the first outputPath ,the second startTime");
       return;
     }
-    String output=args[0];
+    String outputBase=args[0];
+    if(outputBase.endsWith("/"))
+      outputBase=StringUtils.removeEnd(outputBase,"/");
     Date startScanTime = null,endScanTime = null;
     DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
     Date scanUnitTime= ScanRangeUtil.getScanUnit();
     if(args.length==1){
       endScanTime=new Date();
       startScanTime= ScanRangeUtil.getStartScanTime(endScanTime, scanUnitTime);
-    }else{
+    }else if(args.length==2){
       char type=args[1].charAt(0);
       if(type=='s'){
         startScanTime=format.parse(args[1].substring(1));
@@ -65,10 +68,21 @@ public class CountUidUrl {
       else if(type=='e'){
         endScanTime=format.parse(args[1].substring(1));
         startScanTime= ScanRangeUtil.getStartScanTime(endScanTime, scanUnitTime);
-      }
-      else {
+      }else {
         logger.error("args[1] should start with 's' to indicate startTime or 'e' to indicate endTime");
       }
+    }else if(args.length==3){
+      logger.info("args length is 2. the first should be starttime,the second should be endTime");
+      if (args[1].charAt(0) != 's') {
+        logger.info("second arg is " + args[0] + " not start with s");
+        return;
+      }
+      if (args[2].charAt(0) != 'e') {
+        logger.info("third arg is " + args[1] + " not start with e");
+        return;
+      }
+      startScanTime = format.parse(args[0].substring(1));
+      endScanTime = format.parse(args[1].substring(1));
     }
 
     //get hbase Configuration
@@ -80,6 +94,13 @@ public class CountUidUrl {
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
+
+    String startDay=format.format(startScanTime).substring(0,8);
+    String startTime=format.format(startScanTime).substring(8,14);
+    String endDay=format.format(endScanTime).substring(0,8);
+    String endTime=format.format(endScanTime).substring(8,14);
+    String output=outputBase+"/";
+    output+=startDay+"/"+startTime;
 
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job,new Path(output));
