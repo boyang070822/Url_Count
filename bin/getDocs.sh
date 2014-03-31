@@ -1,4 +1,5 @@
 startTime=$1
 endTime=$2
-sh CountUidUrl.sh $startTime $endTime
-sh ../LabeledDocuments/bin/getLabeledDocs.sh ${startTime:0:8} ${endTime:0:8}
+baseDir=`dirname $0`/..
+sh $baseDir/bin/CountUidUrl.sh $startTime $endTime
+sh $baseDir/LabeledDocuments/bin/getLabeledDocs.sh ${startTime:0:8} ${endTime:0:8}
