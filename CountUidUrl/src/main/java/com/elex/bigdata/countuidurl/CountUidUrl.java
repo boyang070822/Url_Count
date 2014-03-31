@@ -74,15 +74,15 @@ public class CountUidUrl {
     }else if(args.length==3){
       logger.info("args length is 2. the first should be starttime,the second should be endTime");
       if (args[1].charAt(0) != 's') {
-        logger.info("second arg is " + args[0] + " not start with s");
+        logger.info("second arg is " + args[1] + " not start with s");
         return;
       }
       if (args[2].charAt(0) != 'e') {
-        logger.info("third arg is " + args[1] + " not start with e");
+        logger.info("third arg is " + args[2] + " not start with e");
         return;
       }
-      startScanTime = format.parse(args[0].substring(1));
-      endScanTime = format.parse(args[1].substring(1));
+      startScanTime = format.parse(args[1].substring(1));
+      endScanTime = format.parse(args[2].substring(1));
     }
 
     //get hbase Configuration
