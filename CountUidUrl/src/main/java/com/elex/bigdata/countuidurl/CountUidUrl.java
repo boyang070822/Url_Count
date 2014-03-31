@@ -50,9 +50,7 @@ public class CountUidUrl {
       logger.error("args length should be >=1 and <3 . the first outputPath ,the second startTime");
       return;
     }
-    String outputBase=args[0];
-    if(outputBase.endsWith("/"))
-      outputBase=StringUtils.removeEnd(outputBase,"/");
+    String output=args[0];
     Date startScanTime = null,endScanTime = null;
     DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
     Date scanUnitTime= ScanRangeUtil.getScanUnit();
@@ -95,12 +93,6 @@ public class CountUidUrl {
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
 
-    String startDay=format.format(startScanTime).substring(0,8);
-    String startTime=format.format(startScanTime).substring(8,14);
-    String endDay=format.format(endScanTime).substring(0,8);
-    String endTime=format.format(endScanTime).substring(8,14);
-    String output=outputBase+"/";
-    output+=startDay+"/"+startTime;
 
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job,new Path(output));
