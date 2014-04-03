@@ -3,6 +3,7 @@ package com.elex.bigdata.countuidurl;
 import com.elex.bigdata.countuidurl.utils.CUUCmdOption;
 import com.elex.bigdata.countuidurl.utils.ScanRangeUtil;
 import com.elex.bigdata.countuidurl.utils.TableStructure;
+import com.elex.bigdata.util.MetricMapping;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -69,23 +70,30 @@ public class CountUidUrl {
     String outputBase = option.outputBase;
     String startTime= option.startTime;
     String endTime = option.endTime;
-    String project=option.project;
-    String nation=option.nations;
     List<String> projects=new ArrayList<String>();
-    if(!project.equals("")){
-       projects.add(project);
+    if(!option.project.equals("")){
+       projects.add(option.project);
     }else{
         //todo
         //list all projects and add to list projects
+      for(String project : MetricMapping.getInstance().getAllProjectShortNameMapping().keySet())
+        projects.add(project);
     }
     for(String proj: projects){
-      if(!nation.equals("")){
-        service.execute(new CountUidUrlRunner(proj,nation,startTime,endTime,outputBase));
+      Byte projectId=MetricMapping.getInstance().getProjectURLByte(proj);
+      if(!option.nations.equals("")){
+        service.execute(new CountUidUrlRunner(proj,option.nations,startTime,endTime,outputBase));
       }else{
         //todo
         //get nations according to proj and execute the runner.
+        Set<String> nations=MetricMapping.getNationsByProjectID(projectId);
+        for(String nation: nations){
+           service.execute(new CountUidUrlRunner(proj,nation,startTime,endTime,outputBase));
+        }
       }
     }
+
+    service.awaitTermination(3,TimeUnit.HOURS);
 
 
   }
