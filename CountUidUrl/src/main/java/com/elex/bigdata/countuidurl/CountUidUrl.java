@@ -92,7 +92,7 @@ public class CountUidUrl {
         }
       }
     }
-
+    service.shutdown();
     service.awaitTermination(3,TimeUnit.HOURS);
 
 
