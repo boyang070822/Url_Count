@@ -37,7 +37,7 @@ public class CountUidUrlRunner implements Runnable{
      this.nation=nation;
      this.startTime=startTime;
      this.endTime=endTime;
-     this.output=outputBase+ "/"+project+"/"+nation;
+     this.output=outputBase+ "/"+project+"/"+nation+"/"+startTime+"_"+endTime;
   }
   @Override
   public void run() {
