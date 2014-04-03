@@ -13,5 +13,15 @@
     <build>
         <finalName>LabeledDocuments</finalName>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.elex.bigdata</groupId>
+            <artifactId>metricmapping</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+
+    </dependencies>
+
 
 </project>

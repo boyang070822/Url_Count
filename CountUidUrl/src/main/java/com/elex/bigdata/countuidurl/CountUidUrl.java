@@ -1,5 +1,6 @@
 package com.elex.bigdata.countuidurl;
 
+import com.elex.bigdata.countuidurl.utils.CUUCmdOption;
 import com.elex.bigdata.countuidurl.utils.ScanRangeUtil;
 import com.elex.bigdata.countuidurl.utils.TableStructure;
 import org.apache.commons.lang.StringUtils;
@@ -15,10 +16,16 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.log4j.Logger;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.elex.bigdata.countuidurl.utils.ScanRangeUtil.*;
 
@@ -30,7 +37,8 @@ import static com.elex.bigdata.countuidurl.utils.ScanRangeUtil.*;
  * To change this template use File | Settings | File Templates.
  */
 public class CountUidUrl {
-  private static Logger logger=Logger.getLogger(CountUidUrl.class);
+  private static Logger logger = Logger.getLogger(CountUidUrl.class);
+
   //the job runs once per day
   public static void main(String[] args) throws Exception {
     /*input has output Path(named with day(hour(minute)))
@@ -46,78 +54,40 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    if(args.length<1||args.length>3){
-      logger.error("args length should be >=1 and <3 . the first outputPath ,the second startTime");
+    ExecutorService service=new ThreadPoolExecutor(3,20,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(30));
+    CUUCmdOption option = new CUUCmdOption();
+    CmdLineParser parser = new CmdLineParser(option);
+    try {
+      parser.parseArgument(args);
+    } catch (CmdLineException e) {
+      e.printStackTrace();
+      System.out.println("CountUidUrl args.....");
+      parser.printUsage(System.out);
       return;
     }
-    String output=args[0];
-    Date startScanTime = null,endScanTime = null;
-    DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
-    Date scanUnitTime= ScanRangeUtil.getScanUnit();
-    if(args.length==1){
-      endScanTime=new Date();
-      startScanTime= ScanRangeUtil.getStartScanTime(endScanTime, scanUnitTime);
-    }else if(args.length==2){
-      char type=args[1].charAt(0);
-      if(type=='s'){
-        startScanTime=format.parse(args[1].substring(1));
-        endScanTime= ScanRangeUtil.getEndScanTime(startScanTime, scanUnitTime);
+
+    String outputBase = option.outputBase;
+    String startTime= option.startTime;
+    String endTime = option.endTime;
+    String project=option.project;
+    String nation=option.nations;
+    List<String> projects=new ArrayList<String>();
+    if(!project.equals("")){
+       projects.add(project);
+    }else{
+        //todo
+        //list all projects and add to list projects
+    }
+    for(String proj: projects){
+      if(!nation.equals("")){
+        service.execute(new CountUidUrlRunner(proj,nation,startTime,endTime,outputBase));
+      }else{
+        //todo
+        //get nations according to proj and execute the runner.
       }
-      else if(type=='e'){
-        endScanTime=format.parse(args[1].substring(1));
-        startScanTime= ScanRangeUtil.getStartScanTime(endScanTime, scanUnitTime);
-      }else {
-        logger.error("args[1] should start with 's' to indicate startTime or 'e' to indicate endTime");
-      }
-    }else if(args.length==3){
-      logger.info("args length is 2. the first should be starttime,the second should be endTime");
-      if (args[1].charAt(0) != 's') {
-        logger.info("second arg is " + args[1] + " not start with s");
-        return;
-      }
-      if (args[2].charAt(0) != 'e') {
-        logger.info("third arg is " + args[2] + " not start with e");
-        return;
-      }
-      startScanTime = format.parse(args[1].substring(1));
-      endScanTime = format.parse(args[2].substring(1));
     }
 
-    //get hbase Configuration
-    Configuration conf= HBaseConfiguration.create();
-    /*
-       set Job MapperClass,ReducerClass,INputFormatClass,InputPath,OutPutPath
-     */
-    Job job=Job.getInstance(conf);
-    job.setMapperClass(GetUidUrlMap.class);
-    job.setReducerClass(CountUidUrlReduce.class);
-    job.setInputFormatClass(TableInputFormat.class);
 
-
-    MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
-    FileOutputFormat.setOutputPath(job,new Path(output));
-    job.setJarByClass(CountUidUrl.class);
-
-    //set Scan and init Mapper for Hbase Table
-
-    logger.info("start: "+format.format(startScanTime)+" end: "+format.format(endScanTime));
-
-    Scan scan=new Scan();
-    scan.setStartRow(Bytes.toBytes(format.format(startScanTime)));
-    scan.setStopRow(Bytes.toBytes(format.format(endScanTime)));
-    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
-    int cacheing=1024;
-    scan.setCaching(cacheing);
-    logger.info("init TableMapperJob");
-    TableMapReduceUtil.initTableMapperJob(TableStructure.tableName,scan,GetUidUrlMap.class,Text.class,Text.class,job);
-    // submit job
-    logger.info("submit job");
-    try{
-      job.waitForCompletion(true);
-    }catch (Exception e){
-      e.printStackTrace();
-      throw e;
-    }
   }
 
 
