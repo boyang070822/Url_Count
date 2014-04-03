@@ -11,7 +11,7 @@ public class TableStructure {
    public static final String[] families={"basis","extend"};
    public static final String url="url",ip="ip",title="title";
    public static final String content="content";
-   public static final String tableName="nav_22find";
+   public static final String tableName="nav_all";
    public static final int uidIndex=16;
 
    public static final String url_Count_familiy="result";
