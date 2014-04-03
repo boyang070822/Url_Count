@@ -66,7 +66,10 @@ public class LDocProducer implements Runnable {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
     try {
-      Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localOutPutBase+File.separator+project+File.separator+nation+File.separator+outputTime);
+      File localDocDir=new File(localOutPutBase+File.separator+project+File.separator+nation);
+      if(localDocDir.exists())
+        localDocDir.mkdirs();
+      Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localDocDir.getAbsolutePath()+File.separator+outputTime);
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
