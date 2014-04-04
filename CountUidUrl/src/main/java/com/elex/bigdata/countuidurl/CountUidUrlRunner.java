@@ -108,10 +108,13 @@ public class CountUidUrlRunner implements Runnable {
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
-
+    try{
     FileSystem fs=new ViewFileSystem(conf);
     if(fs.exists(new Path(output)))
       fs.delete(new Path(output));
+    }catch (IOException e){
+      e.printStackTrace();
+    }
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setJarByClass(CountUidUrl.class);
