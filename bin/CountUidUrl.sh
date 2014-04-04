@@ -4,7 +4,7 @@ startTime=$1
 endTime=$2
 CountUidUrlJar=$baseDir/CountUidUrl/target/Count_UidUrl-jar-with-dependencies.jar
 CountUidUrlMain=com.elex.bigdata.countuidurl.CountUidUrl
-output=/user/hadoop/url_count/${startTime}_${endTime}
-echo "hadoop jar $CountUidUrlJar $CountUidUrlMain $output $startTime $endTime"
-logFile=/data/log/user_category/processLog/CountUidUrl.log
-hadoop jar $CountUidUrlJar $CountUidUrlMain $output s$startTime e$endTime >> $logFile 2>&1
+outputBase=/user/hadoop/url_count/
+echo "hadoop jar $CountUidUrlJar $CountUidUrlMain -outputBase $outputBase -startTime $startTime -endTime $endTime >> $logFile 2>&1"
+logFile=/data/user_category/llda/logs/CountUidUrl.log
+hadoop jar $CountUidUrlJar $CountUidUrlMain -outputBase $outputBase -startTime $startTime -endTime $endTime >> $logFile 2>&1

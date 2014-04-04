@@ -7,7 +7,9 @@ import com.xingcloud.xa.hbase.model.KeyRange;
 import com.xingcloud.xa.hbase.model.KeyRangeComparator;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.viewfs.ViewFileSystem;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
@@ -107,7 +109,9 @@ public class CountUidUrlRunner implements Runnable {
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
 
-
+    FileSystem fs=new ViewFileSystem(conf);
+    if(fs.exists(new Path(output)))
+      fs.delete(new Path(output));
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setJarByClass(CountUidUrl.class);
