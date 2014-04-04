@@ -48,12 +48,11 @@ public class CountUidUrlRunner implements Runnable {
 
   @Override
   public void run() {
+
     List<KeyRange> keyRangeList=new ArrayList<KeyRange>();
     for (String nation : nations ) {
       byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(startTime));
       byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(endTime));
-      System.out.println("startRk " + Bytes.toStringBinary(startRk));
-      System.out.println("endRk " + Bytes.toStringBinary(endRk));
       KeyRange keyRange=new KeyRange(startRk,true,endRk,false);
       keyRangeList.add(keyRange);
     }
@@ -61,6 +60,9 @@ public class CountUidUrlRunner implements Runnable {
     Collections.sort(keyRangeList,comparator);
     byte[] startRk=keyRangeList.get(0).getLowerRange();
     byte[] endRk=keyRangeList.get(keyRangeList.size()-1).getUpperRange();
+    for(KeyRange kr: keyRangeList){
+      System.out.println("keyRange: "+Bytes.toStringBinary(kr.getLowerRange())+" ----- "+Bytes.toStringBinary(kr.getUpperRange()));
+    }
     try {
       getUrlCount(startRk, endRk,keyRangeList,output);
     } catch (Exception e) {

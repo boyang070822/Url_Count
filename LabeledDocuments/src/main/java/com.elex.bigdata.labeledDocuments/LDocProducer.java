@@ -22,14 +22,13 @@ import java.io.IOException;
 public class LDocProducer implements Runnable {
   String input, output;
   String localOutPutBase;
-  String project,nation,outputTime;
+  String project,outputTime;
 
   //constructor input,output
-  public LDocProducer(String inputBase, String outputBase, String localOutPutBase,String project, String nation, String inputTime, String outputTime) {
-    input = inputBase + File.separator + project + File.separator + nation + File.separator + inputTime;
-    output = outputBase + File.separator + project + File.separator + nation + File.separator + outputTime;
+  public LDocProducer(String inputBase, String outputBase, String localOutPutBase,String project,  String inputTime, String outputTime) {
+    input = inputBase + File.separator + project  + File.separator + inputTime;
+    output = outputBase + File.separator + project + File.separator + outputTime;
     this.project=project;
-    this.nation=nation;
     this.outputTime=outputTime;
     this.localOutPutBase=localOutPutBase;
   }
@@ -66,7 +65,7 @@ public class LDocProducer implements Runnable {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
     try {
-      File localDocDir=new File(localOutPutBase+File.separator+project+File.separator+nation);
+      File localDocDir=new File(localOutPutBase+File.separator+project);
       if(localDocDir.exists())
         localDocDir.mkdirs();
       Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localDocDir.getAbsolutePath()+File.separator+outputTime);
