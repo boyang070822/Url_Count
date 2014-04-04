@@ -49,7 +49,7 @@ public class CountUidUrlRunner implements Runnable {
   @Override
   public void run() {
     List<KeyRange> keyRangeList=new ArrayList<KeyRange>();
-    for (String nation : nations) {
+    for (String nation : nations ) {
       byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(startTime));
       byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(endTime));
       System.out.println("startRk " + Bytes.toStringBinary(startRk));

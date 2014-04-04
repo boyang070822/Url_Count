@@ -90,10 +90,10 @@ public class CountUidUrl {
         Set<String> nationSet=MetricMapping.getNationsByProjectID(projectId);
         for(String nation: nations){
            nations.add(nation);
-
         }
       }
-      service.execute(new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase));
+      if(nations.size()!=0)
+        service.execute(new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase));
     }
     service.shutdown();
     service.awaitTermination(3,TimeUnit.HOURS);
