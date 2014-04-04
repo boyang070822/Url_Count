@@ -37,6 +37,14 @@ public class LDocProducer implements Runnable {
   @Override
   public void run() {
     Configuration conf = new Configuration();
+    try {
+      FileSystem fs= null;
+      fs = new ViewFileSystem(conf);
+      if(fs.exists(new Path(output)))
+        fs.delete(new Path(output));
+    } catch (IOException e) {
+      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
     Job job = null;
     try {
       job = Job.getInstance(conf);
