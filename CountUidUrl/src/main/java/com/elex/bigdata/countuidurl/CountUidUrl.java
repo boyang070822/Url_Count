@@ -55,7 +55,7 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    ExecutorService service=new ThreadPoolExecutor(3,20,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(200));
+    ExecutorService service=new ThreadPoolExecutor(8,30,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(200));
     CUUCmdOption option = new CUUCmdOption();
     CmdLineParser parser = new CmdLineParser(option);
     try {
@@ -81,16 +81,19 @@ public class CountUidUrl {
     }
     for(String proj: projects){
       Byte projectId=MetricMapping.getInstance().getProjectURLByte(proj);
+      List<String> nations=new ArrayList<String>();
       if(!option.nations.equals("")){
-        service.execute(new CountUidUrlRunner(proj,option.nations,startTime,endTime,outputBase));
+         nations.add(option.nations);
       }else{
         //todo
         //get nations according to proj and execute the runner.
-        Set<String> nations=MetricMapping.getNationsByProjectID(projectId);
+        Set<String> nationSet=MetricMapping.getNationsByProjectID(projectId);
         for(String nation: nations){
-           service.execute(new CountUidUrlRunner(proj,nation,startTime,endTime,outputBase));
+           nations.add(nation);
+
         }
       }
+      service.execute(new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase));
     }
     service.shutdown();
     service.awaitTermination(3,TimeUnit.HOURS);

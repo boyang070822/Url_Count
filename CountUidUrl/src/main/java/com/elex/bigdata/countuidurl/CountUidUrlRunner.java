@@ -2,6 +2,9 @@ package com.elex.bigdata.countuidurl;
 
 import com.elex.bigdata.countuidurl.utils.TableStructure;
 import com.elex.bigdata.util.MetricMapping;
+import com.xingcloud.xa.hbase.filter.SkipScanFilter;
+import com.xingcloud.xa.hbase.model.KeyRange;
+import com.xingcloud.xa.hbase.model.KeyRangeComparator;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -17,6 +20,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,38 +31,76 @@ import java.util.List;
  * Time: 3:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CountUidUrlRunner implements Runnable{
-  private static Logger logger=Logger.getLogger(CountUidUrlRunner.class);
+public class CountUidUrlRunner implements Runnable {
+  private static Logger logger = Logger.getLogger(CountUidUrlRunner.class);
   private String project;
-  private String nation;
-  private String startTime,endTime;
+  private List<String> nations;
+  private String startTime, endTime;
   private String output;
-  public CountUidUrlRunner(String project,String nation,String startTime,String endTime,String outputBase){
-     this.project=project;
-     this.nation=nation;
-     this.startTime=startTime;
-     this.endTime=endTime;
-     this.output=outputBase+ "/"+project+"/"+nation+"/"+startTime+"_"+endTime;
+
+  public CountUidUrlRunner(String project, List<String> nations, String startTime, String endTime, String outputBase) {
+    this.project = project;
+    this.nations = nations;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.output = outputBase + "/" + project + "/" + startTime + "_" + endTime;
   }
+
   @Override
   public void run() {
-    byte[] startRk=Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)},Bytes.toBytes(nation),Bytes.toBytes(startTime));
-    byte[] endRk=Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)},Bytes.toBytes(nation),Bytes.toBytes(endTime));
-    System.out.println("startRk "+Bytes.toStringBinary(startRk));
-    System.out.println("endRk "+Bytes.toStringBinary(endRk));
+    List<KeyRange> keyRangeList=new ArrayList<KeyRange>();
+    for (String nation : nations) {
+      byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(startTime));
+      byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(endTime));
+      System.out.println("startRk " + Bytes.toStringBinary(startRk));
+      System.out.println("endRk " + Bytes.toStringBinary(endRk));
+      KeyRange keyRange=new KeyRange(startRk,true,endRk,false);
+      keyRangeList.add(keyRange);
+    }
+    KeyRangeComparator comparator=new KeyRangeComparator();
+    Collections.sort(keyRangeList,comparator);
+    byte[] startRk=keyRangeList.get(0).getLowerRange();
+    byte[] endRk=keyRangeList.get(keyRangeList.size()-1).getUpperRange();
     try {
-      getUrlCount(startRk,endRk,output);
+      getUrlCount(startRk, endRk,keyRangeList,output);
     } catch (Exception e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
 
-  private void getUrlCount(byte[] startRk,byte[] endRk,String output) throws Exception {
-    Configuration conf= HBaseConfiguration.create();
+  private void getUrlCount(byte[] startRk, byte[] endRk, String output) throws Exception {
+    //set Scan and init Mapper for Hbase Table
+
+    Scan scan = new Scan();
+    scan.setStartRow(startRk);
+    scan.setStopRow(endRk);
+    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
+    int cacheing = 1024;
+    scan.setCaching(cacheing);
+    logger.info("init TableMapperJob");
+    getUrlCount(scan,output);
+
+  }
+
+  public void getUrlCount(byte[] startRk, byte[] endRk, List<KeyRange> keyRangeList,String output) throws IOException {
+    Scan scan = new Scan();
+    scan.setStartRow(startRk);
+    scan.setStopRow(endRk);
+    SkipScanFilter filter=new SkipScanFilter(keyRangeList);
+    scan.setFilter(filter);
+    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
+    int cacheing = 1024;
+    scan.setCaching(cacheing);
+    logger.info("init TableMapperJob");
+    getUrlCount(scan,output);
+  }
+
+  public void getUrlCount(Scan scan,String output) throws IOException {
+    Configuration conf = HBaseConfiguration.create();
     /*
        set Job MapperClass,ReducerClass,INputFormatClass,InputPath,OutPutPath
      */
-    Job job=Job.getInstance(conf);
+    Job job = Job.getInstance(conf);
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
@@ -66,24 +109,13 @@ public class CountUidUrlRunner implements Runnable{
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setJarByClass(CountUidUrl.class);
-
-    //set Scan and init Mapper for Hbase Table
-
-    Scan scan=new Scan();
-    scan.setStartRow(startRk);
-    scan.setStopRow(endRk);
-    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
-    int cacheing=1024;
-    scan.setCaching(cacheing);
-    logger.info("init TableMapperJob");
     TableMapReduceUtil.initTableMapperJob(TableStructure.tableName, scan, GetUidUrlMap.class, Text.class, Text.class, job);
     // submit job
     logger.info("submit job");
-    try{
+    try {
       job.waitForCompletion(true);
-    }catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
-      throw e;
     }
   }
 
