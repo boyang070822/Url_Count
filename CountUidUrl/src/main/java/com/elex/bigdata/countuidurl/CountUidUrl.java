@@ -82,13 +82,14 @@ public class CountUidUrl {
     for(String proj: projects){
       Byte projectId=MetricMapping.getInstance().getProjectURLByte(proj);
       List<String> nations=new ArrayList<String>();
+      System.out.println("projectId "+projectId+" project: "+proj);
       if(!option.nations.equals("")){
          nations.add(option.nations);
       }else{
         //todo
         //get nations according to proj and execute the runner.
         Set<String> nationSet=MetricMapping.getNationsByProjectID(projectId);
-        for(String nation: nations){
+        for(String nation: nationSet){
            nations.add(nation);
         }
       }
