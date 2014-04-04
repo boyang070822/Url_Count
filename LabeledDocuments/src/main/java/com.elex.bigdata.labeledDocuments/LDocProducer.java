@@ -38,8 +38,7 @@ public class LDocProducer implements Runnable {
   public void run() {
     Configuration conf = new Configuration();
     try {
-      FileSystem fs= null;
-      fs = new ViewFileSystem(conf);
+      FileSystem fs= FileSystem.get(conf);
       if(fs.exists(new Path(output)))
         fs.delete(new Path(output));
     } catch (IOException e) {

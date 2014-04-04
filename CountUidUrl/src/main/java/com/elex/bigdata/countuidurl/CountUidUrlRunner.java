@@ -109,7 +109,7 @@ public class CountUidUrlRunner implements Runnable {
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
     try{
-    FileSystem fs=new ViewFileSystem(conf);
+    FileSystem fs=FileSystem.get(conf);
     if(fs.exists(new Path(output)))
       fs.delete(new Path(output));
     }catch (IOException e){
