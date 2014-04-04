@@ -20,7 +20,7 @@ public class LDocCmdOption {
   public String inputBase="";
   @Option(name="-outputBase",usage = "specify the labeled Docs outputBase dir",required = true)
   public String outputBase="";
-  @Option(name="-inputTime ",usage = "specify the timeRange of UidUrlCount,usually timeHead",required = true)
+  @Option(name="-inputTime",usage = "specify the timeRange of UidUrlCount,usually timeHead",required = true)
   public String inputTime="";
   @Option(name="-outputTime",usage = "specify the outputTime of labeledDocs",required = true)
   public String outputTime="";
