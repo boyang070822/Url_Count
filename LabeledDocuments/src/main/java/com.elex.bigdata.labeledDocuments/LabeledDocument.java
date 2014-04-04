@@ -46,7 +46,7 @@ public class LabeledDocument {
       projects.add(option.project);
     }
     for (String project : projects) {
-      LDocProducer lDocProducer = new LDocProducer(option.inputBase, option.outputBase, option.localOutputBase, project, option.inputTime, option.outputTime);
+      LDocProducer lDocProducer = new LDocProducer(option.inputBase, option.outputBase, option.localOutputBase, project, option.inputTime, option.outputTime,!option.notUseProject);
       service.execute(lDocProducer);
     }
     try {

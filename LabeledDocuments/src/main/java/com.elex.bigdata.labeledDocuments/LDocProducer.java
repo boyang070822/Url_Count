@@ -25,13 +25,14 @@ public class LDocProducer implements Runnable {
   String project,outputTime;
 
   //constructor input,output
-  public LDocProducer(String inputBase, String outputBase, String localOutPutBase,String project,  String inputTime, String outputTime) {
-    input = inputBase + File.separator + project  + File.separator + inputTime;
+  public LDocProducer(String inputBase, String outputBase, String localOutPutBase,String project,  String inputTime, String outputTime,boolean useProject) {
+    input = inputBase + File.separator + (useProject?(project  + File.separator):"") + inputTime;
     output = outputBase + File.separator + project + File.separator + outputTime;
     this.project=project;
     this.outputTime=outputTime;
     this.localOutPutBase=localOutPutBase;
   }
+
 
   @Override
   public void run() {

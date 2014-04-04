@@ -26,4 +26,6 @@ public class LDocCmdOption {
   public String outputTime="";
   @Option(name="-localOutputBase",usage ="specify the local output Base")
   public String localOutputBase="/data/user_category/llda/docs";
+  @Option(name="-notUseProject",usage = "specify whether to use project to specify the inputDir ")
+  public boolean notUseProject=false;
 }
