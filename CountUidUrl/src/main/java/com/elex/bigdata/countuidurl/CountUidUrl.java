@@ -94,7 +94,7 @@ public class CountUidUrl {
     }
     service.shutdown();
     service.awaitTermination(3,TimeUnit.HOURS);
-
+    System.out.println("service shutdown !");
 
   }
 
