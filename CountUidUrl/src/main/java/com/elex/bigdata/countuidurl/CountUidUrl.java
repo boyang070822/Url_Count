@@ -55,7 +55,7 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    ExecutorService service=new ThreadPoolExecutor(3,20,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(30));
+    ExecutorService service=new ThreadPoolExecutor(3,20,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(200));
     CUUCmdOption option = new CUUCmdOption();
     CmdLineParser parser = new CmdLineParser(option);
     try {
