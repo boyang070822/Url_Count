@@ -121,6 +121,7 @@ public class CountUidUrlRunner implements Runnable {
     TableMapReduceUtil.initTableMapperJob(TableStructure.tableName, scan, GetUidUrlMap.class, Text.class, Text.class, job);
     // submit job
     logger.info("submit job");
+    job.setJobName("CountUidUrl");
     try {
       job.waitForCompletion(true);
     } catch (Exception e) {
