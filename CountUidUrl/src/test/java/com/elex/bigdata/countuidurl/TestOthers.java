@@ -4,6 +4,11 @@ import com.elex.bigdata.util.MetricMapping;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created with IntelliJ IDEA.
  * User: yb
@@ -19,6 +24,30 @@ public class TestOthers {
     System.out.println(Bytes.toStringBinary(startRk));
     System.out.println(Bytes.toStringBinary(endRk));
 
+  }
+
+  @Test
+  public void testThread() throws InterruptedException {
+    ExecutorService service=new ThreadPoolExecutor(3,8,3600, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20));
+    for(int i=0;i<10;i++){
+      service.execute(new Runnable() {
+        @Override
+        public void run() {
+          for(int j=0;j<100;j++)
+          {
+            try {
+              Thread.sleep(10);
+            } catch (InterruptedException e) {
+              e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            System.out.println("thread "+Thread.currentThread().getName());
+          }
+
+        }
+      });
+    }
+    service.shutdown();
+    service.awaitTermination(10,TimeUnit.MINUTES);
   }
 
 }

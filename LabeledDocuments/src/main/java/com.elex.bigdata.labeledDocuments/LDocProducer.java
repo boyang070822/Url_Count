@@ -72,6 +72,7 @@ public class LDocProducer implements Runnable {
     } catch (ClassNotFoundException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
+    System.out.println("LDocProducer job completed");
     try {
       File localDocDir=new File(localOutPutBase+File.separator+project);
       if(localDocDir.exists())

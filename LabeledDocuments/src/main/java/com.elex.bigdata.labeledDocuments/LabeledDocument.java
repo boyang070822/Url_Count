@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class LabeledDocument {
   public static void main(String[] args) throws IOException {
-    ExecutorService service = new ThreadPoolExecutor(3, 20, 3600, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
+    ExecutorService service = new ThreadPoolExecutor(3, 8, 3600, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20));
     /*
       args[0] inputPath args[1] outputPath
 
@@ -52,6 +52,7 @@ public class LabeledDocument {
     try {
       service.shutdown();
       service.awaitTermination(10, TimeUnit.MINUTES);
+      System.out.println("get labeled docs completely");
     } catch (InterruptedException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }

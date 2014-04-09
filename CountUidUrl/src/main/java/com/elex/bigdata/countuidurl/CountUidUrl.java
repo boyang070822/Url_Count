@@ -55,7 +55,7 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    ExecutorService service=new ThreadPoolExecutor(8,30,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(200));
+    ExecutorService service=new ThreadPoolExecutor(3,8,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20));
     CUUCmdOption option = new CUUCmdOption();
     CmdLineParser parser = new CmdLineParser(option);
     try {
@@ -97,7 +97,7 @@ public class CountUidUrl {
         service.execute(new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase));
     }
     service.shutdown();
-    service.awaitTermination(3,TimeUnit.HOURS);
+    service.awaitTermination(1,TimeUnit.HOURS);
     System.out.println("service shutdown !");
 
   }

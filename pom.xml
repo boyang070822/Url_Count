@@ -11,7 +11,7 @@
 
 
     <build>
-        <finalName>UrlCounter</finalName>
+
         <!-- Resources of app -->
         <resources>
             <resource>
