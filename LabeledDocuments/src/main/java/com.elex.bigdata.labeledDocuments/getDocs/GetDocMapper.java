@@ -26,6 +26,7 @@ public class GetDocMapper extends Mapper<Object,Text,Text,Text> {
   private static Logger logger=Logger.getLogger(GetDocMapper.class);
   private Set<String> currentUids=new HashSet<String>();
   protected void setup(Context context) throws IOException {
+     logger.info("setup");
      String inputPath=context.getConfiguration().get("input");
      Path path=new Path(inputPath);
      FileSystem fs=FileSystem.get(context.getConfiguration());
