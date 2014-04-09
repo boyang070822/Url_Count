@@ -60,8 +60,11 @@ public class GetDocMapper extends Mapper<Object,Text,Text,Text> {
       logger.info("error value "+value);
       return;
     }
-    if(currentUids.contains(fields[0]))
+    if(currentUids.contains(fields[0])){
       context.write(new Text(fields[0]),new Text(fields[1]+","+fields[2]));
+      System.out.println(fields[0]+" in current uids");
+    }
+
     else
       System.out.println(fields[0] +" not in current uids");
   }
