@@ -19,10 +19,11 @@ import java.io.IOException;
  * Time: 9:55 AM
  * To change this template use File | Settings | File Templates.
  */
-public class LDocProducer implements Runnable {
+public class LDocProducer  {
   String input, output;
   String localOutPutBase;
   String project,outputTime;
+  private Job job;
 
   //constructor input,output
   public LDocProducer(String inputBase, String outputBase, String localOutPutBase,String project,  String inputTime, String outputTime,boolean useProject) {
@@ -34,8 +35,7 @@ public class LDocProducer implements Runnable {
   }
 
 
-  @Override
-  public void run() {
+  public void _run() {
     Configuration conf = new Configuration();
     try {
       FileSystem fs= FileSystem.get(conf);
@@ -44,7 +44,7 @@ public class LDocProducer implements Runnable {
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
-    Job job = null;
+    job = null;
     try {
       job = Job.getInstance(conf);
     } catch (IOException e) {
@@ -61,25 +61,35 @@ public class LDocProducer implements Runnable {
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setMapOutputValueClass(Text.class);
     job.setMapOutputKeyClass(Text.class);
-    try {
+  }
+  public Job getJob(){
+     _run();
+    return job;
+  }
+  public static class CopyLDocsToLocal implements Runnable{
+    String output;
+    String localOutPutBase;
+    String project,outputTime;
+    public CopyLDocsToLocal( String outputBase, String localOutPutBase,String project, String outputTime) {
+      output = outputBase + File.separator + project + File.separator + outputTime;
+      this.project=project;
+      this.outputTime=outputTime;
+      this.localOutPutBase=localOutPutBase;
+    }
+    @Override
+    public void run() {
+      copyToLocal();
+    }
+    public void copyToLocal(){
       try {
-        job.waitForCompletion(true);
+        File localDocDir=new File(localOutPutBase+File.separator+project);
+        if(localDocDir.exists())
+          localDocDir.mkdirs();
+        Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localDocDir.getAbsolutePath()+File.separator+outputTime);
       } catch (IOException e) {
         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
       }
-    } catch (InterruptedException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    }
-    System.out.println("LDocProducer job completed");
-    try {
-      File localDocDir=new File(localOutPutBase+File.separator+project);
-      if(localDocDir.exists())
-        localDocDir.mkdirs();
-      Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localDocDir.getAbsolutePath()+File.separator+outputTime);
-    } catch (IOException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
   }
+
 }
