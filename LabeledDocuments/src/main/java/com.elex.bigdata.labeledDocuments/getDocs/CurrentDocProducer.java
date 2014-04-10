@@ -28,6 +28,7 @@ public class CurrentDocProducer implements Runnable{
   String input, output,refInput;
   String localOutPutBase;
   String project,outputTime;
+  private Job job;
 
   //constructor input,output
   public CurrentDocProducer(String inputBase, String outputBase, String localOutPutBase,String project, String refInputTime,String inputTime, String outputTime,boolean useProject) {
@@ -56,7 +57,6 @@ public class CurrentDocProducer implements Runnable{
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
-    Job job = null;
     try {
       job = Job.getInstance(conf);
     } catch (IOException e) {
@@ -76,25 +76,10 @@ public class CurrentDocProducer implements Runnable{
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setMapOutputValueClass(Text.class);
     job.setMapOutputKeyClass(Text.class);
-    try {
-      try {
-        job.waitForCompletion(true);
-      } catch (IOException e) {
-        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      }
-    } catch (InterruptedException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    }
-    System.out.println("LDocProducer job completed");
-    try {
-      File localDocDir=new File(localOutPutBase+File.separator+project);
-      if(localDocDir.exists())
-        localDocDir.mkdirs();
-      Runtime.getRuntime().exec("hadoop fs -getmerge " +output+ "  "+localDocDir.getAbsolutePath()+File.separator+outputTime);
-    } catch (IOException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    }
+  }
+
+  public Job getJob(){
+    run();
+    return job;
   }
 }
