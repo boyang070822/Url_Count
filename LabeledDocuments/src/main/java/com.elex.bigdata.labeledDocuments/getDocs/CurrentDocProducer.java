@@ -50,7 +50,7 @@ public class CurrentDocProducer implements Runnable{
       FileSystem fs= FileSystem.get(conf);
       if(fs.exists(new Path(output)))
         fs.delete(new Path(output));
-      for(FileStatus fileStatus:fs.globStatus(new Path(output))){
+      for(FileStatus fileStatus:fs.globStatus(new Path(refInput))){
          if(!fileStatus.getPath().getName().equals(inputPath.getName()))
            refInputPaths.add(fileStatus.getPath());
       }
