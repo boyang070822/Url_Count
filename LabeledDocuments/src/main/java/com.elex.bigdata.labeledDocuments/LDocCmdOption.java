@@ -24,7 +24,7 @@ public class LDocCmdOption {
   public String inputTime="";
   @Option(name="-outputTime",usage = "specify the outputTime of labeledDocs",required = true)
   public String outputTime="";
-  @Option(name="-refInputTime",usage = "specify the timeRange of UidUrlCount,usually timeHead",required = true)
+  @Option(name="-refInputTime",usage = "specify the timeRange of UidUrlCount,usually timeHead")
   public String refInputTime="";
   @Option(name="-localOutputBase",usage ="specify the local output Base")
   public String localOutputBase="/data/user_category/llda/docs";
