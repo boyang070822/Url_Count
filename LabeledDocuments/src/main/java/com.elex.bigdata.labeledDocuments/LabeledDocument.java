@@ -57,6 +57,7 @@ public class LabeledDocument {
         Job job=lDocProducer.getJob();
         ControlledJob controlledJob=new ControlledJob(job.getConfiguration());
         controlledJob.setJob(job);
+        jobControl.addJob(controlledJob);
       }
     }
     Thread jcThread = new Thread(jobControl);
