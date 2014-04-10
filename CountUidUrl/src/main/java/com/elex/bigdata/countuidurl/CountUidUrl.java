@@ -41,6 +41,7 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
+    long t1=System.currentTimeMillis();
     CUUCmdOption option = new CUUCmdOption();
     CmdLineParser parser = new CmdLineParser(option);
     JobControl jobControl=new JobControl("CountUidUrl");
@@ -93,11 +94,13 @@ public class CountUidUrl {
       if(jobControl.allFinished()){
         System.out.println("all finished "+ "successful jobs "+jobControl.getSuccessfulJobList());
         jobControl.stop();
+        System.out.println("count use "+(System.currentTimeMillis()-t1)+" ms");
         return ;
       }
       if(jobControl.getFailedJobList().size() > 0){
         System.out.println("failed jobs "+ jobControl.getFailedJobList());
         jobControl.stop();
+        System.out.println("count use "+(System.currentTimeMillis()-t1)+" ms");
         return ;
       }
     }
