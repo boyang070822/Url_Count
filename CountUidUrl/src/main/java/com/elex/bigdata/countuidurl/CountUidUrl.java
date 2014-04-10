@@ -79,7 +79,7 @@ public class CountUidUrl {
            nations.add(nation);
         }
       }
-      if(nations.size()!=0)
+      if(nations.size()!=0&&projectId!=null)
       {
         Job job=new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase).getJob();
         ControlledJob controlledJob=new ControlledJob(job.getConfiguration());
