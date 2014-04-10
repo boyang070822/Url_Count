@@ -19,7 +19,7 @@ import java.io.IOException;
  * Time: 9:55 AM
  * To change this template use File | Settings | File Templates.
  */
-public class LDocProducer  {
+public class LDocProducer  implements Runnable{
   String input, output;
   String localOutPutBase;
   String project,outputTime;
@@ -35,7 +35,7 @@ public class LDocProducer  {
   }
 
 
-  public void _run() {
+  public void run() {
     Configuration conf = new Configuration();
     try {
       FileSystem fs= FileSystem.get(conf);
@@ -63,7 +63,7 @@ public class LDocProducer  {
     job.setMapOutputKeyClass(Text.class);
   }
   public Job getJob(){
-     _run();
+     run();
     return job;
   }
   public static class CopyLDocsToLocal implements Runnable{
