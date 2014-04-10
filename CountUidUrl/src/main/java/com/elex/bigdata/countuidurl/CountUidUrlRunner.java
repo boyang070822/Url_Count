@@ -33,12 +33,13 @@ import java.util.List;
  * Time: 3:53 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CountUidUrlRunner implements Runnable {
+public class CountUidUrlRunner  {
   private static Logger logger = Logger.getLogger(CountUidUrlRunner.class);
   private String project;
   private List<String> nations;
   private String startTime, endTime;
   private String output;
+  private Job job;
 
   public CountUidUrlRunner(String project, List<String> nations, String startTime, String endTime, String outputBase) {
     this.project = project;
@@ -48,8 +49,7 @@ public class CountUidUrlRunner implements Runnable {
     this.output = outputBase + "/" + project + "/" + startTime + "_" + endTime;
   }
 
-  @Override
-  public void run() {
+  public void _run() {
 
     List<KeyRange> keyRangeList=new ArrayList<KeyRange>();
     for (String nation : nations ) {
@@ -104,7 +104,7 @@ public class CountUidUrlRunner implements Runnable {
     /*
        set Job MapperClass,ReducerClass,INputFormatClass,InputPath,OutPutPath
      */
-    Job job = Job.getInstance(conf);
+    job = Job.getInstance(conf);
     job.setMapperClass(GetUidUrlMap.class);
     job.setReducerClass(CountUidUrlReduce.class);
     job.setInputFormatClass(TableInputFormat.class);
@@ -122,11 +122,11 @@ public class CountUidUrlRunner implements Runnable {
     // submit job
     logger.info("submit job");
     job.setJobName("CountUidUrl");
-    try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  }
+
+  public Job getJob(){
+    _run();
+    return job;
   }
 
 }

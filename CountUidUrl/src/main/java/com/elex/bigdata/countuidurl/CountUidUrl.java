@@ -1,34 +1,20 @@
 package com.elex.bigdata.countuidurl;
 
 import com.elex.bigdata.countuidurl.utils.CUUCmdOption;
-import com.elex.bigdata.countuidurl.utils.ScanRangeUtil;
-import com.elex.bigdata.countuidurl.utils.TableStructure;
 import com.elex.bigdata.util.MetricMapping;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
-import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.elex.bigdata.countuidurl.utils.ScanRangeUtil.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -55,9 +41,9 @@ public class CountUidUrl {
               if it is 's', parse to the ScanStartTime and get ScanEndTime
               else if it is 'e',parse to the ScanEndTime and getScanStartTime
     */
-    ExecutorService service=new ThreadPoolExecutor(3,8,3600,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20));
     CUUCmdOption option = new CUUCmdOption();
     CmdLineParser parser = new CmdLineParser(option);
+    JobControl jobControl=new JobControl("CountUidUrl");
     try {
       parser.parseArgument(args);
     } catch (CmdLineException e) {
@@ -94,12 +80,27 @@ public class CountUidUrl {
         }
       }
       if(nations.size()!=0)
-        service.execute(new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase));
+      {
+        Job job=new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase).getJob();
+        ControlledJob controlledJob=new ControlledJob(job.getConfiguration());
+        controlledJob.setJob(job);
+        jobControl.addJob(controlledJob);
+      }
     }
-    service.shutdown();
-    service.awaitTermination(1,TimeUnit.HOURS);
-    System.out.println("service shutdown !");
-
+    Thread jcThread = new Thread(jobControl);
+    jcThread.start();
+    while(true){
+      if(jobControl.allFinished()){
+        System.out.println("all finished "+ "successful jobs "+jobControl.getSuccessfulJobList());
+        jobControl.stop();
+        return ;
+      }
+      if(jobControl.getFailedJobList().size() > 0){
+        System.out.println("failed jobs "+ jobControl.getFailedJobList());
+        jobControl.stop();
+        return ;
+      }
+    }
   }
 
 
