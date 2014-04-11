@@ -79,10 +79,12 @@ public class CountUidUrl {
       }else{
         //todo
         //get nations according to proj and execute the runner.
+        long t3=System.currentTimeMillis();
         Set<String> nationSet=MetricMapping.getNationsByProjectID(projectId);
         for(String nation: nationSet){
            nations.add(nation);
         }
+        System.out.println("get nations use "+(System.currentTimeMillis()-t3)+ " ms");
       }
       if(nations.size()!=0&&projectId!=null)
       {
