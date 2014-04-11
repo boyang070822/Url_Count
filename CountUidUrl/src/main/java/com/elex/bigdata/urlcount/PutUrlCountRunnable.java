@@ -30,6 +30,7 @@ public class PutUrlCountRunnable implements Runnable {
   @Override
   public void run() {
     try {
+      System.out.println("uid size "+uidUrlCountMap.size());
       FSDataOutputStream outputStream=fs.create(filePath);
       BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(outputStream));
       for(Map.Entry<String,Map<String,Integer>> entry: uidUrlCountMap.entrySet()){

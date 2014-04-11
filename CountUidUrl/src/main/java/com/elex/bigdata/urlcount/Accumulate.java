@@ -147,7 +147,7 @@ public class Accumulate {
     return scan;
   }
 
-  public void getUidUrl() throws IOException {
+  public void getUidUrl() throws IOException, InterruptedException {
     HTable hTable=new HTable(conf, TableStructure.tableName);
     ResultScanner scanner=hTable.getScanner(getScan());
     Map<String,Map<String,Map<String,Integer>>> projectUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
@@ -159,6 +159,7 @@ public class Accumulate {
       String url=Bytes.toString(result.getValue(family, urlQualify));
       Map<String,Map<String,Integer>> uidUrlCountMap=projectUrlCountMap.get(project);
       if(uidUrlCountMap==null){
+        System.out.println("new project "+project);
         putToHdfs(projectUrlCountMap);
         projectUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
         uidUrlCountMap=new HashMap<String, Map<String, Integer>>();
@@ -175,6 +176,8 @@ public class Accumulate {
       else
         urlCountMap.put(url,count+1);
     }
+    service.shutdown();
+    service.awaitTermination(10,TimeUnit.MINUTES);
   }
 
   private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap) throws IOException {
