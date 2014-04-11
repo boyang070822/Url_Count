@@ -119,7 +119,9 @@ public class CountUidUrlRunner  {
     MultipleInputs.addInputPath(job, new Path("/user/hadoop/"), TableInputFormat.class, GetUidUrlMap.class);
     FileOutputFormat.setOutputPath(job, new Path(output));
     job.setJarByClass(CountUidUrl.class);
+    long t1=System.currentTimeMillis();
     TableMapReduceUtil.initTableMapperJob(TableStructure.tableName, scan, GetUidUrlMap.class, Text.class, Text.class, job);
+    System.out.println("init table map use "+(System.currentTimeMillis()-t1)+" ms");
     // submit job
     logger.info("submit job");
     job.setJobName("CountUidUrl");
