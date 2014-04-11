@@ -93,7 +93,7 @@ public class CountUidUrlRunner  {
     SkipScanFilter filter=new SkipScanFilter(keyRangeList);
     scan.setFilter(filter);
     scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
-    int cacheing = 1024;
+    int cacheing = 5120;
     scan.setCaching(cacheing);
     logger.info("init TableMapperJob");
     getUrlCount(scan,output);
