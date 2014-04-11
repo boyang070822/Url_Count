@@ -20,9 +20,10 @@ import java.util.Arrays;
  */
 public class GetUidUrlMap extends TableMapper<Text,Text> {
   private static Logger logger=Logger.getLogger(GetUidUrlMap.class);
+  private byte[] family=Bytes.toBytes(TableStructure.families[0]),urlBytes=Bytes.toBytes(TableStructure.url);
   public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
       byte[] uid= Arrays.copyOfRange(row.get(),TableStructure.uidIndex,row.get().length);
-      byte[] url= value.getValue(Bytes.toBytes(TableStructure.families[0]),Bytes.toBytes(TableStructure.url));
+      byte[] url= value.getValue(family,urlBytes);
       //logger.info("Map uid "+Bytes.toString(uid)+" url "+Bytes.toString(url));
       context.write(new Text(Bytes.toString(uid)),new Text(Bytes.toString(url)));
   }
