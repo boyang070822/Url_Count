@@ -4,6 +4,7 @@ import com.elex.bigdata.countuidurl.utils.CUUCmdOption;
 import com.elex.bigdata.util.MetricMapping;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
@@ -104,7 +105,10 @@ public class CountUidUrl {
         return ;
       }
     }
+
   }
+
+
 
 
 }

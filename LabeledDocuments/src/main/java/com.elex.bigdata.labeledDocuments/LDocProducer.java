@@ -1,5 +1,6 @@
 package com.elex.bigdata.labeledDocuments;
 
+import com.elex.bigdata.labeledDocuments.utils.CombineTextInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -37,6 +38,7 @@ public class LDocProducer  implements Runnable{
 
   public void run() {
     Configuration conf = new Configuration();
+    conf.setLong("mapreduce.input.fileinputformat.split.maxsize", 10485760); // 10m
     try {
       FileSystem fs= FileSystem.get(conf);
       if(fs.exists(new Path(output)))
@@ -54,7 +56,7 @@ public class LDocProducer  implements Runnable{
     job.setReducerClass(LabeledDocReducer.class);
     job.setJarByClass(LabeledDocument.class);
     try {
-      FileInputFormat.addInputPath(job, new Path(input));
+      CombineTextInputFormat.addInputPath(job, new Path(input));
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }

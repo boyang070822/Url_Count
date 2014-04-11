@@ -101,6 +101,7 @@ public class CountUidUrlRunner  {
 
   public void getUrlCount(Scan scan,String output) throws IOException {
     Configuration conf = HBaseConfiguration.create();
+
     /*
        set Job MapperClass,ReducerClass,INputFormatClass,InputPath,OutPutPath
      */
