@@ -38,7 +38,8 @@ public class LDocProducer  implements Runnable{
 
   public void run() {
     Configuration conf = new Configuration();
-    conf.setLong("mapreduce.input.fileinputformat.split.maxsize", 10485760); // 10m
+    conf.setLong("mapred.max.split.size", 104857600); // 10m
+    conf.setLong("mapreduce.input.fileinputformat.split.maxsize",104857600);
     try {
       FileSystem fs= FileSystem.get(conf);
       if(fs.exists(new Path(output)))
@@ -48,15 +49,16 @@ public class LDocProducer  implements Runnable{
     }
     job = null;
     try {
-      job = Job.getInstance(conf,"getDocs");
+      job = Job.getInstance(conf);
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
     job.setMapperClass(LabeledDocMapper.class);
     job.setReducerClass(LabeledDocReducer.class);
     job.setJarByClass(LabeledDocument.class);
+    job.setInputFormatClass(CombineTextInputFormat.class);
     try {
-      CombineTextInputFormat.addInputPath(job, new Path(input));
+      FileInputFormat.addInputPath(job, new Path(input));
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
