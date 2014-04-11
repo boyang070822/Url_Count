@@ -159,8 +159,8 @@ public class Accumulate {
       String url=Bytes.toString(result.getValue(family, urlQualify));
       Map<String,Map<String,Integer>> uidUrlCountMap=projectUrlCountMap.get(project);
       if(uidUrlCountMap==null){
-        System.out.println("new project "+project);
-        putToHdfs(projectUrlCountMap);
+        if(projectUrlCountMap.size()!=0)
+          putToHdfs(projectUrlCountMap);
         projectUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
         uidUrlCountMap=new HashMap<String, Map<String, Integer>>();
         projectUrlCountMap.put(project,uidUrlCountMap);
@@ -183,6 +183,7 @@ public class Accumulate {
   private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap) throws IOException {
     for(Map.Entry<String,Map<String,Map<String,Integer>>> entry:projectUrlCountMap.entrySet()){
       Path filePath=getOutputPath(entry.getKey());
+      System.out.println("put to hdfs "+entry.getKey());
       service.execute(new PutUrlCountRunnable(fs,filePath,entry.getValue()));
     }
 
