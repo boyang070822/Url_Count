@@ -38,8 +38,8 @@ public class LDocProducer  implements Runnable{
 
   public void run() {
     Configuration conf = new Configuration();
-    conf.setLong("mapred.max.split.size", 104857600); // 10m
-    conf.setLong("mapreduce.input.fileinputformat.split.maxsize",104857600);
+    conf.setLong("mapred.max.split.size", 22485760); // 10m
+    conf.setLong("mapreduce.input.fileinputformat.split.maxsize",22485760);
     try {
       FileSystem fs= FileSystem.get(conf);
       if(fs.exists(new Path(output)))
@@ -49,7 +49,7 @@ public class LDocProducer  implements Runnable{
     }
     job = null;
     try {
-      job = Job.getInstance(conf);
+      job = Job.getInstance(conf,"getDocs");
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
