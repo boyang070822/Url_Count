@@ -39,14 +39,16 @@ public class CountUidUrlRunner  {
   private List<String> nations;
   private String startTime, endTime;
   private String output;
+  private Configuration conf;
   private Job job;
 
-  public CountUidUrlRunner(String project, List<String> nations, String startTime, String endTime, String outputBase) {
+  public CountUidUrlRunner(Configuration conf,String project, List<String> nations, String startTime, String endTime, String outputBase) {
     this.project = project;
     this.nations = nations;
     this.startTime = startTime;
     this.endTime = endTime;
     this.output = outputBase + "/" + project + "/" + startTime + "_" + endTime;
+    this.conf=conf;
   }
 
   public void _run() {
@@ -62,9 +64,9 @@ public class CountUidUrlRunner  {
     Collections.sort(keyRangeList,comparator);
     byte[] startRk=keyRangeList.get(0).getLowerRange();
     byte[] endRk=keyRangeList.get(keyRangeList.size()-1).getUpperRange();
-    for(KeyRange kr: keyRangeList){
+    //for(KeyRange kr: keyRangeList){
       //System.out.println("keyRange: "+Bytes.toStringBinary(kr.getLowerRange())+" ----- "+Bytes.toStringBinary(kr.getUpperRange()));
-    }
+    //}
     try {
       getUrlCount(startRk, endRk,keyRangeList,output);
     } catch (Exception e) {
@@ -100,8 +102,6 @@ public class CountUidUrlRunner  {
   }
 
   public void getUrlCount(Scan scan,String output) throws IOException {
-    Configuration conf = HBaseConfiguration.create();
-
     /*
        set Job MapperClass,ReducerClass,INputFormatClass,InputPath,OutPutPath
      */

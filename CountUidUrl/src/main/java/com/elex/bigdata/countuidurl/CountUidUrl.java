@@ -2,6 +2,8 @@ package com.elex.bigdata.countuidurl;
 
 import com.elex.bigdata.countuidurl.utils.CUUCmdOption;
 import com.elex.bigdata.util.MetricMapping;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
@@ -67,6 +69,7 @@ public class CountUidUrl {
       for(String project : MetricMapping.getInstance().getAllProjectShortNameMapping().keySet())
         projects.add(project);
     }
+    Configuration conf= HBaseConfiguration.create();
     for(String proj: projects){
       Byte projectId=MetricMapping.getInstance().getProjectURLByte(proj);
       List<String> nations=new ArrayList<String>();
@@ -83,7 +86,7 @@ public class CountUidUrl {
       }
       if(nations.size()!=0&&projectId!=null)
       {
-        Job job=new CountUidUrlRunner(proj,nations,startTime,endTime,outputBase).getJob();
+        Job job=new CountUidUrlRunner(conf,proj,nations,startTime,endTime,outputBase).getJob();
         ControlledJob controlledJob=new ControlledJob(job.getConfiguration());
         controlledJob.setJob(job);
         jobControl.addJob(controlledJob);
