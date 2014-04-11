@@ -48,7 +48,7 @@ public class LDocProducer  implements Runnable{
     }
     job = null;
     try {
-      job = Job.getInstance(conf);
+      job = Job.getInstance(conf,"getDocs");
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
     }
