@@ -1,4 +1,4 @@
-package com.elex.bigdata.labeledDocuments.utils;
+package com.elex.bigdata.labeledDocuments.inputformat;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
