@@ -43,7 +43,7 @@ public class PutUrlCountRunnable implements Runnable {
         }
         writer.write(builder.toString());
         writer.write("\r\n");
-        System.out.println("uid "+uid+" filePath "+filePath.getName());
+        System.out.println("uid "+uid+" filePath "+filePath.getParent().getName());
       }
     } catch (IOException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
