@@ -10,6 +10,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -39,17 +40,18 @@ public class Accumulate {
   String startTime;
   String endTime;
   private CUUCmdOption option;
-  private Map<Byte,String> projectMap=new HashMap<Byte, String>();
-  private ExecutorService service=new ThreadPoolExecutor(3,8,10, TimeUnit.MINUTES,new ArrayBlockingQueue<Runnable>(20));
+  private Map<Byte, String> projectMap = new HashMap<Byte, String>();
+  private ExecutorService service = new ThreadPoolExecutor(3, 8, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(20));
   private FileSystem fs;
   private Configuration conf;
+
   public Accumulate(CUUCmdOption option) throws IOException {
     outputBase = option.outputBase;
     startTime = option.startTime;
     endTime = option.endTime;
     this.option = option;
-    conf=HBaseConfiguration.create();
-    fs=FileSystem.get(conf);
+    conf = HBaseConfiguration.create();
+    fs = FileSystem.get(conf);
   }
 
   public static void main(String[] args) throws Exception {
@@ -110,7 +112,7 @@ public class Accumulate {
     }
     for (String proj : projects) {
       Byte projectId = MetricMapping.getInstance().getProjectURLByte(proj);
-      projectMap.put(projectId,proj);
+      projectMap.put(projectId, proj);
       Set<String> nations = new HashSet<String>();
       System.out.println("projectId " + projectId + " project: " + proj);
       if (!option.nations.equals("")) {
@@ -134,68 +136,69 @@ public class Accumulate {
     return keyRanges;
   }
 
-  private Scan getScan(){
-    List<KeyRange> keyRanges=getSortedKeyRanges();
-    Scan scan=new Scan();
-    Filter filter=new SkipScanFilter(keyRanges);
+  private Scan getScan() {
+    List<KeyRange> keyRanges = getSortedKeyRanges();
+    Scan scan = new Scan();
+    Filter filter = new SkipScanFilter(keyRanges);
     scan.setFilter(filter);
     scan.setStartRow(keyRanges.get(0).getLowerRange());
-    scan.setStopRow(keyRanges.get(keyRanges.size()-1).getUpperRange());
-    int cacheSize=5096;
+    scan.setStopRow(keyRanges.get(keyRanges.size() - 1).getUpperRange());
+    int cacheSize = 5096;
     scan.setCaching(cacheSize);
-    scan.addColumn(Bytes.toBytes(TableStructure.families[0]),Bytes.toBytes(TableStructure.url));
+    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
     return scan;
   }
 
   public void getUidUrl() throws IOException, InterruptedException {
-    HTable hTable=new HTable(conf, TableStructure.tableName);
-    ResultScanner scanner=hTable.getScanner(getScan());
-    Map<String,Map<String,Map<String,Integer>>> projectUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
-    byte[] family=Bytes.toBytes(TableStructure.families[0]),urlQualify=Bytes.toBytes(TableStructure.url);
-    for(Result result: scanner){
-      byte[] rk=result.getRow();
-      String project=projectMap.get(rk[0]);
-      String uid=Bytes.toString(Arrays.copyOfRange(rk,TableStructure.uidIndex,rk.length));
-      String url=Bytes.toString(result.getValue(family, urlQualify));
-      Map<String,Map<String,Integer>> uidUrlCountMap=projectUrlCountMap.get(project);
-      if(uidUrlCountMap==null){
-        if(projectUrlCountMap.size()!=0)
-          putToHdfs(projectUrlCountMap);
-        projectUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
-        uidUrlCountMap=new HashMap<String, Map<String, Integer>>();
-        projectUrlCountMap.put(project,uidUrlCountMap);
+    HTable hTable = new HTable(conf, TableStructure.tableName);
+    ResultScanner scanner = hTable.getScanner(getScan());
+    Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
+    for (Result result : scanner) {
+      for (KeyValue kv : result.raw()) {
+        byte[] rk = kv.getRow();
+        String project = projectMap.get(rk[0]);
+        String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.uidIndex, rk.length));
+        String url = Bytes.toString(kv.getValue());
+        Map<String, Map<String, Integer>> uidUrlCountMap = projectUrlCountMap.get(project);
+        if (uidUrlCountMap == null) {
+          if (projectUrlCountMap.size() != 0)
+            putToHdfs(projectUrlCountMap);
+          projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
+          uidUrlCountMap = new HashMap<String, Map<String, Integer>>();
+          projectUrlCountMap.put(project, uidUrlCountMap);
+        }
+        Map<String, Integer> urlCountMap = uidUrlCountMap.get(uid);
+        if (urlCountMap == null) {
+          urlCountMap = new HashMap<String, Integer>();
+          uidUrlCountMap.put(uid, urlCountMap);
+        }
+        Integer count = urlCountMap.get(url);
+        if (count == null)
+          urlCountMap.put(url, new Integer(1));
+        else
+          urlCountMap.put(url, count + 1);
       }
-      Map<String,Integer> urlCountMap=uidUrlCountMap.get(uid);
-      if(urlCountMap==null){
-        urlCountMap=new HashMap<String, Integer>();
-        uidUrlCountMap.put(uid,urlCountMap);
-      }
-      Integer count=urlCountMap.get(url);
-      if(count==null)
-        urlCountMap.put(url,new Integer(1));
-      else
-        urlCountMap.put(url,count+1);
     }
     service.shutdown();
-    service.awaitTermination(10,TimeUnit.MINUTES);
+    service.awaitTermination(10, TimeUnit.MINUTES);
   }
 
   private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap) throws IOException {
-    for(Map.Entry<String,Map<String,Map<String,Integer>>> entry:projectUrlCountMap.entrySet()){
-      Path filePath=getOutputPath(entry.getKey());
-      System.out.println("put to hdfs "+entry.getKey());
-      service.execute(new PutUrlCountRunnable(fs,filePath,entry.getValue()));
+    for (Map.Entry<String, Map<String, Map<String, Integer>>> entry : projectUrlCountMap.entrySet()) {
+      Path filePath = getOutputPath(entry.getKey());
+      System.out.println("put to hdfs " + entry.getKey());
+      service.execute(new PutUrlCountRunnable(fs, filePath, entry.getValue()));
     }
 
   }
 
   private Path getOutputPath(String project) throws IOException {
 
-    Path parentDir=new Path(outputBase+ File.separator+project+File.separator+startTime+"_"+endTime);
-    if(!fs.exists(parentDir)){
+    Path parentDir = new Path(outputBase + File.separator + project + File.separator + startTime + "_" + endTime);
+    if (!fs.exists(parentDir)) {
       fs.mkdirs(parentDir);
     }
-    Path outputFile=new Path(parentDir,"part-00000");
+    Path outputFile = new Path(parentDir, "part-00000");
     return outputFile;
   }
 
