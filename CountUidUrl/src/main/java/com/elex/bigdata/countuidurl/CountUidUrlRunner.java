@@ -64,9 +64,9 @@ public class CountUidUrlRunner  {
     Collections.sort(keyRangeList,comparator);
     byte[] startRk=keyRangeList.get(0).getLowerRange();
     byte[] endRk=keyRangeList.get(keyRangeList.size()-1).getUpperRange();
-    for(KeyRange kr: keyRangeList){
-      System.out.println("keyRange: "+Bytes.toStringBinary(kr.getLowerRange())+" ----- "+Bytes.toStringBinary(kr.getUpperRange()));
-    }
+//    for(KeyRange kr: keyRangeList){
+//      System.out.println("keyRange: "+Bytes.toStringBinary(kr.getLowerRange())+" ----- "+Bytes.toStringBinary(kr.getUpperRange()));
+//    }
     try {
       getUrlCount(startRk, endRk,keyRangeList,output);
     } catch (Exception e) {

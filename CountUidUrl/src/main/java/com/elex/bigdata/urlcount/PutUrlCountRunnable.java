@@ -36,14 +36,14 @@ public class PutUrlCountRunnable implements Runnable {
       for(Map.Entry<String,Map<String,Integer>> entry: uidUrlCountMap.entrySet()){
         String uid=entry.getKey();
         Map<String,Integer> urlCount=entry.getValue();
-        StringBuilder builder=new StringBuilder();
-        builder.append(uid+"\t");
+
         for(Map.Entry<String,Integer> urlCountEntry: urlCount.entrySet()){
-          builder.append(urlCountEntry.getKey()+","+urlCountEntry.getValue()+"\t");
+          StringBuilder builder=new StringBuilder();
+          builder.append(uid+"\t");
+          builder.append(urlCountEntry.getKey()+"\t"+urlCountEntry.getValue());
+          writer.write(builder.toString());
+          writer.write("\r\n");
         }
-        writer.write(builder.toString());
-        writer.write("\r\n");
-        System.out.println("uid "+uid+" filePath "+filePath.toString());
       }
       writer.flush();
       writer.close();
