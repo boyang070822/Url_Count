@@ -1,6 +1,7 @@
 package com.elex.bigdata.countuidurl;
 
 import com.elex.bigdata.util.MetricMapping;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
@@ -48,6 +49,12 @@ public class TestOthers {
     }
     service.shutdown();
     service.awaitTermination(10,TimeUnit.MINUTES);
+  }
+  @Test
+  public void testPath(){
+     Path path=new Path("/user/hadoop/22find");
+     System.out.println(path.toString());
+     System.out.println(path.getName());
   }
 
 }
