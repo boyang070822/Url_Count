@@ -90,6 +90,8 @@ public class Accumulate {
     Accumulate accumulate = new Accumulate(option);
     accumulate.getUidUrl();
     accumulate.getAdUidUrl();
+    if(accumulate.accessOldTable())
+      accumulate.getOldUidUrl();
     accumulate.shutdown();
   }
 
@@ -247,6 +249,45 @@ public class Accumulate {
       else
         urlCountMap.put(url, count + 3);
     }
+  }
+
+  public boolean accessOldTable() throws ParseException {
+    SimpleDateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+    long boundTime=format.parse("20140403000000").getTime();
+    return (startTimeStamp<boundTime);
+  }
+
+  public void getOldUidUrl() throws IOException {
+    HTable hTable = new HTable(conf, TableStructure.oldTableName);
+    byte[] family = Bytes.toBytes(TableStructure.families[0]);
+    byte[] urlColumn = Bytes.toBytes(TableStructure.url);
+    Scan scan=new Scan();
+    scan.setStartRow(Bytes.toBytes(startTime));
+    scan.setStopRow(Bytes.toBytes(endTime));
+    int cacheSize = 5096;
+    scan.setCaching(cacheSize);
+    scan.addColumn(family,urlColumn);
+    ResultScanner scanner = hTable.getScanner(scan);
+
+    Map<String,Map<String,Map<String,Integer>>> projectUidUrlCountMap=new HashMap<String, Map<String, Map<String, Integer>>>();
+    Map<String, Map<String, Integer>> uidUrlCountMap = new HashMap<String, Map<String, Integer>>();
+    for (Result result : scanner) {
+      byte[] rk = result.getRow();
+      String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.oldUidIndex, rk.length));
+      String url = Bytes.toString(result.getValue(family, urlColumn));
+      Map<String, Integer> urlCountMap = uidUrlCountMap.get(uid);
+      if (urlCountMap == null) {
+        urlCountMap = new HashMap<String, Integer>();
+        uidUrlCountMap.put(uid, urlCountMap);
+      }
+      Integer count = urlCountMap.get(url);
+      if (count == null)
+        urlCountMap.put(url, new Integer(1));
+      else
+        urlCountMap.put(url, count + 1);
+    }
+    projectUidUrlCountMap.put("22find",uidUrlCountMap);
+    putToHdfs(projectUidUrlCountMap, "old_22find");
   }
 
   private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap,String flag) throws IOException {
