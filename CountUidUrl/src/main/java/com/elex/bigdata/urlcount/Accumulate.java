@@ -22,6 +22,9 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -45,14 +48,17 @@ public class Accumulate {
   private FileSystem fs;
   private Configuration conf;
   private static String jogosUrl="www.jogos.com",comprasUrl="www.compras.com",otherUrl="www.other.com";
-
-  public Accumulate(CUUCmdOption option) throws IOException {
+  private long startTimeStamp,endTimeStamp;
+  public Accumulate(CUUCmdOption option) throws IOException, ParseException {
     outputBase = option.outputBase;
     startTime = option.startTime;
     endTime = option.endTime;
     this.option = option;
     conf = HBaseConfiguration.create();
     fs = FileSystem.get(conf);
+    DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+    startTimeStamp=format.parse(startTime).getTime();
+    endTimeStamp=format.parse(endTime).getTime();
   }
 
   public static void main(String[] args) throws Exception {
@@ -91,8 +97,8 @@ public class Accumulate {
   private List<KeyRange> getKeyRanges(String project, Set<String> nations,boolean timeAsLong) {
     List<KeyRange> keyRangeList = new ArrayList<KeyRange>();
     for (String nation : nations) {
-      byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(Long.parseLong(startTime)):Bytes.toBytes(startTime));
-      byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(Long.parseLong(endTime)):Bytes.toBytes(endTime));
+      byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(startTimeStamp):Bytes.toBytes(startTime));
+      byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(endTimeStamp):Bytes.toBytes(endTime));
       KeyRange keyRange = new KeyRange(startRk, true, endRk, false);
       keyRangeList.add(keyRange);
     }
@@ -219,7 +225,7 @@ public class Accumulate {
     for (Result result : scanner) {
       byte[] rk = result.getRow();
       String project = projectMap.get(rk[0]);
-      String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.uidIndex, rk.length));
+      String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.adUidIndex, rk.length));
       int category = Bytes.toInt(result.getValue(family, categoryColumn));
       String url = categoryToUrlMap.get(category);
       Map<String, Map<String, Integer>> uidUrlCountMap = projectUrlCountMap.get(project);

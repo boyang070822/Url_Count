@@ -17,6 +17,7 @@ public class TableStructure {
    public static final int nationIndex=1;
    public static final int timeIndex=3;
    public static final int uidIndex=17;
+   public static final int adUidIndex=11;
 
    public static final String url_Count_familiy="result";
    public static final String url_count_column_count="count";
