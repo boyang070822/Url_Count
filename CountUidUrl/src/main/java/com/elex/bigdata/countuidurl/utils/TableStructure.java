@@ -9,9 +9,10 @@ package com.elex.bigdata.countuidurl.utils;
  */
 public class TableStructure {
    public static final String[] families={"basis","extend"};
-   public static final String url="url",ip="ip",title="title";
+   public static final String url="url",ip="ip",title="title",category="c";
    public static final String content="content";
    public static final String tableName="nav_all";
+   public static final String adTableName="ad_all_log";
    public static final int projectIdIndex=0;
    public static final int nationIndex=1;
    public static final int timeIndex=3;

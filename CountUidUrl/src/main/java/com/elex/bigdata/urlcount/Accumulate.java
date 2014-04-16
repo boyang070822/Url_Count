@@ -44,6 +44,7 @@ public class Accumulate {
   private ExecutorService service = new ThreadPoolExecutor(3, 8, 10, TimeUnit.MINUTES, new ArrayBlockingQueue<Runnable>(20));
   private FileSystem fs;
   private Configuration conf;
+  private static String jogosUrl="www.jogos.com",comprasUrl="www.compras.com",otherUrl="www.other.com";
 
   public Accumulate(CUUCmdOption option) throws IOException {
     outputBase = option.outputBase;
@@ -82,7 +83,8 @@ public class Accumulate {
 
     Accumulate accumulate = new Accumulate(option);
     accumulate.getUidUrl();
-
+    accumulate.getAdUidUrl();
+    accumulate.shutdown();
   }
 
 
@@ -139,7 +141,7 @@ public class Accumulate {
     return keyRanges;
   }
 
-  private Scan getScan() {
+  private Scan getScan(Map<String, List<String>> familyColumns) {
     List<KeyRange> keyRanges = getSortedKeyRanges();
     Scan scan = new Scan();
     Filter filter = new SkipScanFilter(keyRanges);
@@ -148,13 +150,23 @@ public class Accumulate {
     scan.setStopRow(keyRanges.get(keyRanges.size() - 1).getUpperRange());
     int cacheSize = 5096;
     scan.setCaching(cacheSize);
-    scan.addColumn(Bytes.toBytes(TableStructure.families[0]), Bytes.toBytes(TableStructure.url));
+    for (Map.Entry<String, List<String>> entry : familyColumns.entrySet()) {
+      String family = entry.getKey();
+      for (String column : entry.getValue()) {
+        scan.addColumn(Bytes.toBytes(family), Bytes.toBytes(column));
+      }
+    }
+
     return scan;
   }
 
   public void getUidUrl() throws IOException, InterruptedException {
     HTable hTable = new HTable(conf, TableStructure.tableName);
-    ResultScanner scanner = hTable.getScanner(getScan());
+    Map<String, List<String>> familyColumns = new HashMap<String, List<String>>();
+    List<String> columns = new ArrayList<String>();
+    columns.add(TableStructure.url);
+    familyColumns.put(TableStructure.families[0], columns);
+    ResultScanner scanner = hTable.getScanner(getScan(familyColumns));
     Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
     for (Result result : scanner) {
       for (KeyValue kv : result.raw()) {
@@ -165,7 +177,7 @@ public class Accumulate {
         Map<String, Map<String, Integer>> uidUrlCountMap = projectUrlCountMap.get(project);
         if (uidUrlCountMap == null) {
           if (projectUrlCountMap.size() != 0)
-            putToHdfs(projectUrlCountMap);
+            putToHdfs(projectUrlCountMap,"custom");
           projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
           uidUrlCountMap = new HashMap<String, Map<String, Integer>>();
           projectUrlCountMap.put(project, uidUrlCountMap);
@@ -182,27 +194,76 @@ public class Accumulate {
           urlCountMap.put(url, count + 1);
       }
     }
-    service.shutdown();
-    service.awaitTermination(10, TimeUnit.MINUTES);
+  }
+  /*
+     get uid category from ad_all_log ;
+     transfer category to a url,and give it a count 3.
+   */
+  public void getAdUidUrl() throws IOException, InterruptedException {
+    HTable hTable = new HTable(conf, TableStructure.adTableName);
+    Map<String, List<String>> familyColumns = new HashMap<String, List<String>>();
+    List<String> columns = new ArrayList<String>();
+    columns.add(TableStructure.category);
+    familyColumns.put(TableStructure.families[0], columns);
+    ResultScanner scanner = hTable.getScanner(getScan(familyColumns));
+
+    byte[] family = Bytes.toBytes(TableStructure.families[0]);
+    byte[] categoryColumn = Bytes.toBytes(TableStructure.category);
+    Map<Integer, String> categoryToUrlMap = new HashMap<Integer, String>();
+    categoryToUrlMap.put(new Integer(0), otherUrl);
+    categoryToUrlMap.put(new Integer(1), jogosUrl);
+    categoryToUrlMap.put(new Integer(2), comprasUrl);
+    categoryToUrlMap.put(new Integer(99), otherUrl);
+    Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
+    for (Result result : scanner) {
+      byte[] rk = result.getRow();
+      String project = projectMap.get(rk[0]);
+      String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.uidIndex, rk.length));
+      int category = Bytes.toInt(result.getValue(family, categoryColumn));
+      String url = categoryToUrlMap.get(category);
+      Map<String, Map<String, Integer>> uidUrlCountMap = projectUrlCountMap.get(project);
+      if (uidUrlCountMap == null) {
+        if (projectUrlCountMap.size() != 0)
+          putToHdfs(projectUrlCountMap,"ad");
+        projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
+        uidUrlCountMap = new HashMap<String, Map<String, Integer>>();
+        projectUrlCountMap.put(project, uidUrlCountMap);
+      }
+      Map<String, Integer> urlCountMap = uidUrlCountMap.get(uid);
+      if (urlCountMap == null) {
+        urlCountMap = new HashMap<String, Integer>();
+        uidUrlCountMap.put(uid, urlCountMap);
+      }
+      Integer count = urlCountMap.get(url);
+      if (count == null)
+        urlCountMap.put(url, new Integer(3));
+      else
+        urlCountMap.put(url, count + 3);
+    }
   }
 
-  private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap) throws IOException {
+  private void putToHdfs(Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap,String flag) throws IOException {
     for (Map.Entry<String, Map<String, Map<String, Integer>>> entry : projectUrlCountMap.entrySet()) {
-      Path filePath = getOutputPath(entry.getKey());
+      Path filePath = getOutputPath(entry.getKey(),flag);
       System.out.println("put to hdfs " + entry.getKey());
       service.execute(new PutUrlCountRunnable(fs, filePath, entry.getValue()));
     }
 
   }
 
-  private Path getOutputPath(String project) throws IOException {
+  private Path getOutputPath(String project,String flag) throws IOException {
 
     Path parentDir = new Path(outputBase + File.separator + project + File.separator + startTime + "_" + endTime);
     if (!fs.exists(parentDir)) {
       fs.mkdirs(parentDir);
     }
-    Path outputFile = new Path(parentDir, "part-00000");
+    Path outputFile = new Path(parentDir, "part-"+flag);
     return outputFile;
+  }
+
+  public void shutdown() throws InterruptedException {
+    service.shutdown();
+    service.awaitTermination(10,TimeUnit.MINUTES);
   }
 
 

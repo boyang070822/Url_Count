@@ -36,8 +36,7 @@ public class TestOthers {
     categoriesMap.put("compras","compras");
     while((line=reader.readLine())!=null){
         String[] tokens=line.split(" ");
-        String category=categoriesMap.get(tokens[0]);
-        if(category==null)category="other";
+        String category=tokens[0];
         for(int i=1;i<tokens.length;i++){
           Set<String> urls=categoryUrls.get(category);
           if(urls==null){
@@ -91,7 +90,7 @@ public class TestOthers {
         builder.append(url+" ");
       }
       writer.write(builder.toString());
-      writer.write("\n\r");
+      writer.newLine();
     }
   }
 
