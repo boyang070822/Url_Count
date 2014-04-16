@@ -66,6 +66,9 @@ public class LabeledDocument {
     while(true){
       if(jobControl.allFinished()){
         System.out.println("all finished "+ "successful jobs "+jobControl.getSuccessfulJobList());
+        if(jobControl.getFailedJobList().size()>0){
+          System.out.println("failed jobs "+ jobControl.getFailedJobList());
+        }
         jobControl.stop();
         for(LDocProducer.CopyLDocsToLocal copyLDocsToLocal :copyLDocsToLocalList){
           service.execute(copyLDocsToLocal);
@@ -79,9 +82,8 @@ public class LabeledDocument {
         System.out.println("count use "+(System.currentTimeMillis()-t1)+" ms");
         return ;
       }
-      if(jobControl.getFailedJobList().size() > 0){
+      if(jobControl.getFailedJobList().size()==projects.size()){
         System.out.println("failed jobs "+ jobControl.getFailedJobList());
-        if(jobControl.getFailedJobList().size()==projects.size())
           return;
       }
     }
