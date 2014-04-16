@@ -87,7 +87,7 @@ public class Accumulate {
     accumulate.shutdown();
   }
 
-
+  //if timestamp in rk is long type or string ,rk should be different
   private List<KeyRange> getKeyRanges(String project, Set<String> nations,boolean timeAsLong) {
     List<KeyRange> keyRangeList = new ArrayList<KeyRange>();
     for (String nation : nations) {
