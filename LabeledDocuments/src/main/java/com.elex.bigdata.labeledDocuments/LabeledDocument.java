@@ -81,9 +81,8 @@ public class LabeledDocument {
       }
       if(jobControl.getFailedJobList().size() > 0){
         System.out.println("failed jobs "+ jobControl.getFailedJobList());
-        jobControl.stop();
-        System.out.println("count use "+(System.currentTimeMillis()-t1)+" ms");
-        return ;
+        if(jobControl.getFailedJobList().size()==projects.size())
+          return;
       }
     }
   }
