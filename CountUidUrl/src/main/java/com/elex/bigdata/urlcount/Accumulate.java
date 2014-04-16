@@ -226,7 +226,7 @@ public class Accumulate {
       byte[] rk = result.getRow();
       String project = projectMap.get(rk[0]);
       String uid = Bytes.toString(Arrays.copyOfRange(rk, TableStructure.adUidIndex, rk.length));
-      int category = Bytes.toInt(result.getValue(family, categoryColumn));
+      int category = Integer.parseInt(Bytes.toString(result.getValue(family, categoryColumn)));
       String url = categoryToUrlMap.get(category);
       Map<String, Map<String, Integer>> uidUrlCountMap = projectUrlCountMap.get(project);
       if (uidUrlCountMap == null) {
