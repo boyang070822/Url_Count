@@ -24,7 +24,7 @@ public class TestOthers {
     byte[] endRk=Bytes.add(new byte[]{1},Bytes.toBytes("br"),Bytes.toBytes("20140404000000"));
     System.out.println(Bytes.toStringBinary(startRk));
     System.out.println(Bytes.toStringBinary(endRk));
-
+    System.out.println(Long.parseLong("20101010101010"));
   }
 
   @Test

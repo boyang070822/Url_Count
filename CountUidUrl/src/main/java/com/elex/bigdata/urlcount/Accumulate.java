@@ -88,11 +88,11 @@ public class Accumulate {
   }
 
 
-  private List<KeyRange> getKeyRanges(String project, Set<String> nations) {
+  private List<KeyRange> getKeyRanges(String project, Set<String> nations,boolean timeAsLong) {
     List<KeyRange> keyRangeList = new ArrayList<KeyRange>();
     for (String nation : nations) {
-      byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(startTime));
-      byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), Bytes.toBytes(endTime));
+      byte[] startRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(Long.parseLong(startTime)):Bytes.toBytes(startTime));
+      byte[] endRk = Bytes.add(new byte[]{MetricMapping.getInstance().getProjectURLByte(project)}, Bytes.toBytes(nation), timeAsLong?Bytes.toBytes(Long.parseLong(endTime)):Bytes.toBytes(endTime));
       KeyRange keyRange = new KeyRange(startRk, true, endRk, false);
       keyRangeList.add(keyRange);
     }
@@ -101,7 +101,7 @@ public class Accumulate {
     return keyRangeList;
   }
 
-  private List<KeyRange> getSortedKeyRanges() {
+  private List<KeyRange> getSortedKeyRanges(boolean timeAsLong) {
     List<KeyRange> keyRanges = new ArrayList<KeyRange>();
     List<String> projects = new ArrayList<String>();
     if (!option.project.equals("")) {
@@ -130,7 +130,7 @@ public class Accumulate {
         System.out.println("get nations use " + (System.currentTimeMillis() - t3) + " ms");
       }
       if (nations.size() != 0 && projectId != null) {
-        keyRanges.addAll(getKeyRanges(proj, nations));
+        keyRanges.addAll(getKeyRanges(proj, nations,timeAsLong));
       }
     }
     KeyRangeComparator comparator = new KeyRangeComparator();
@@ -141,8 +141,9 @@ public class Accumulate {
     return keyRanges;
   }
 
-  private Scan getScan(Map<String, List<String>> familyColumns) {
-    List<KeyRange> keyRanges = getSortedKeyRanges();
+
+  private Scan getScan(Map<String, List<String>> familyColumns,boolean timeAsLong) {
+    List<KeyRange> keyRanges = getSortedKeyRanges(timeAsLong);
     Scan scan = new Scan();
     Filter filter = new SkipScanFilter(keyRanges);
     scan.setFilter(filter);
@@ -166,7 +167,7 @@ public class Accumulate {
     List<String> columns = new ArrayList<String>();
     columns.add(TableStructure.url);
     familyColumns.put(TableStructure.families[0], columns);
-    ResultScanner scanner = hTable.getScanner(getScan(familyColumns));
+    ResultScanner scanner = hTable.getScanner(getScan(familyColumns,false));
     Map<String, Map<String, Map<String, Integer>>> projectUrlCountMap = new HashMap<String, Map<String, Map<String, Integer>>>();
     for (Result result : scanner) {
       for (KeyValue kv : result.raw()) {
@@ -205,7 +206,7 @@ public class Accumulate {
     List<String> columns = new ArrayList<String>();
     columns.add(TableStructure.category);
     familyColumns.put(TableStructure.families[0], columns);
-    ResultScanner scanner = hTable.getScanner(getScan(familyColumns));
+    ResultScanner scanner = hTable.getScanner(getScan(familyColumns,true));
 
     byte[] family = Bytes.toBytes(TableStructure.families[0]);
     byte[] categoryColumn = Bytes.toBytes(TableStructure.category);
