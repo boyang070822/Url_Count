@@ -287,6 +287,7 @@ public class Accumulate {
         urlCountMap.put(url, count + 1);
     }
     projectUidUrlCountMap.put("22find",uidUrlCountMap);
+    System.out.println("get uid url from nav_22find "+uidUrlCountMap.size());
     putToHdfs(projectUidUrlCountMap, "old_22find");
   }
 
